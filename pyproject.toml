@@ -1,0 +1,14 @@
+[project]
+name = "VehicleRoutingProblem"
+version = "0.1.0"
+dependencies = [
+    "vrplib>=1.0.0",
+    "matplotlib>=3.8.0",
+    "pulp>=2.8.0",
+    "numpy>=1.26.0",
+    "pandas>=2.2.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
