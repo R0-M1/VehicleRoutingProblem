@@ -1,7 +1,7 @@
 import random
 from typing import List
 import numpy as np
-from vehicle_routing_problem.model import Node, Route, Solution
+from vehicle_routing_problem.core import Node, Route, Solution
 
 
 def generate_random_solution(nodes: List[Node], capacity: int, dist_matrix: np.ndarray,
