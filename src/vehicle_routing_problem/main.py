@@ -1,5 +1,5 @@
 from pathlib import Path
-from utils.parser import VRPParser
+from vehicle_routing_problem.utils.parser import VRPParser
 from vehicle_routing_problem.generator import RandomGenerator, GreedyGenerator
 
 if __name__ == "__main__":

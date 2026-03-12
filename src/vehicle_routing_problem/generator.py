@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import List
 import random
-from core.route import Route
-from core.solution import Solution
-from core.instance import Instance
+from vehicle_routing_problem.core.route import Route
+from vehicle_routing_problem.core.solution import Solution
+from vehicle_routing_problem.core.instance import Instance
 
 
 class RandomGenerator:
