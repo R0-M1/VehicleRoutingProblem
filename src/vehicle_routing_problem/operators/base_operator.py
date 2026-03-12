@@ -7,7 +7,7 @@ class BaseOperator(ABC):
     """
     Classe abstraite commune à tous les opérateurs de voisinage.
     Chaque sous-classe reçoit ses paramètres spécifiques dans son constructeur
-    et implémente apply() et get_delta().
+    et implémente apply().
     """
 
     def __init__(self, instance: Instance):
@@ -22,12 +22,8 @@ class BaseOperator(ABC):
         ...
 
     @abstractmethod
-    def get_delta(self, solution: Solution) -> float:
+    def generate_neighbors(self, solution: Solution) -> Iterator[BaseOperator]:
         """
-        Retourne le delta de distance entre la solution après application
-        de l'opérateur et la solution originale.
-        delta < 0  →  amélioration
-        delta > 0  →  dégradation
-        delta = 0  →  neutre
+        Génère tous les opérateurs de voisinage possibles pour la solution donnée.
         """
         ...
