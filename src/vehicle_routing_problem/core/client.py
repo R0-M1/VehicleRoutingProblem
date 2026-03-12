@@ -4,6 +4,7 @@ import math
 @dataclass(frozen=True)
 class Client:
     id: int
+    name: str
     x: float
     y: float
     demand: int

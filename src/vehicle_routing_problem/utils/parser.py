@@ -53,6 +53,7 @@ class VRPParser:
             if len(parts) == 5:
                 depots.append(Client(
                     id=0,
+                    name=parts[0],
                     x=float(parts[1]), y=float(parts[2]),
                     demand=0,
                     ready_time=float(parts[3]),
@@ -75,6 +76,7 @@ class VRPParser:
             if len(parts) == 7:
                 clients.append(Client(
                     id=client_id,
+                    name=parts[0],
                     x=float(parts[1]), y=float(parts[2]),
                     demand=int(parts[5]),
                     ready_time=float(parts[3]),
