@@ -1,3 +1,5 @@
+import math
+
 import matplotlib.pyplot as plt
 from typing import Optional
 import numpy as np
@@ -271,7 +273,10 @@ class Visualizer:
         if titles is None:
             titles = [f"Solution {i+1}" for i in range(nb_solutions)]
 
-        fig, axes = plt.subplots(1, nb_solutions, figsize=figsize)
+        cols = min(3, nb_solutions)
+        rows = math.ceil(nb_solutions / cols)
+
+        fig, axes = plt.subplots(rows, cols, figsize=(5*cols, 5*rows))
 
         if nb_solutions == 1:
             axes = [axes]
