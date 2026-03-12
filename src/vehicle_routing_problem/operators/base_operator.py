@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from collections.abc import Iterator
 from vehicle_routing_problem.core.solution import Solution
 from vehicle_routing_problem.core.instance import Instance
 
