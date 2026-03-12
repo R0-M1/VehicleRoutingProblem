@@ -36,10 +36,6 @@ class IntraRelocate(BaseOperator):
         
         return new_solution
 
-    @override
-    def get_delta(self, solution: Solution) -> float:
-        """Calcule le gain de distance[cite: 24, 246]."""
-        return self.apply(solution).total_distance - solution.total_distance
 
     @override
     def generate_neighbors(self, solution: Solution) -> list[BaseOperator]:
