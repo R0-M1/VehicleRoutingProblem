@@ -1,9 +1,11 @@
 from typing import List, override
+
+from vehicle_routing_problem.core.instance import Instance
 from vehicle_routing_problem.core.solution import Solution
 from vehicle_routing_problem.operators.base_operator import BaseOperator
 
 
-class IntraExchange(BaseOperator):
+class InterExchange(BaseOperator):
     """
     Opérateur IntraExchange inter-route : échange un client de la route1
     avec un client de la route2.
@@ -39,13 +41,14 @@ class IntraExchange(BaseOperator):
 
         return new_solution
 
+    @classmethod
     @override
-    def generate_neighbors(self, solution: Solution) -> List[BaseOperator]:
+    def generate_neighbors(cls, instance: Instance, solution: Solution) -> List[BaseOperator]:
         """
         Génère tous les échanges possibles entre toutes les paires de routes
         pour tous les clients dans chaque route.
         """
-        neighbors: List[BaseOperator] = []
+        neighbors = []
 
         n_routes = len(solution.routes)
         for r1 in range(n_routes):
@@ -55,6 +58,6 @@ class IntraExchange(BaseOperator):
 
                 for i in range(len(route1.client_ids)):
                     for j in range(len(route2.client_ids)):
-                        neighbors.append(IntraExchange(self._inst, r1, r2, i, j))
+                        neighbors.append(cls(instance, r1, r2, i, j))
 
         return neighbors

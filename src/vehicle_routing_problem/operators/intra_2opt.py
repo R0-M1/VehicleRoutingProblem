@@ -1,4 +1,6 @@
 from typing import List, override
+
+from vehicle_routing_problem.core.instance import Instance
 from vehicle_routing_problem.core.solution import Solution
 from vehicle_routing_problem.operators.base_operator import BaseOperator
 
@@ -34,20 +36,21 @@ class Intra2Opt(BaseOperator):
 
         return new_solution
 
+    @classmethod
     @override
-    def generate_neighbors(self, solution: Solution) -> List[BaseOperator]:
+    def generate_neighbors(cls, instance: Instance, solution: Solution) -> List[BaseOperator]:
         """
         Génère tous les voisins possibles intra-route pour chaque route
         en inversant toutes les paires (i,j) avec i < j.
         """
-        neighbors: List[BaseOperator] = []
+        neighbors = []
 
-        for route_idx, route in enumerate(solution.routes):
+        for route_id, route in enumerate(solution.routes):
             n = len(route.client_ids)
             # toutes les paires i < j
             for i in range(n):
                 for j in range(i + 1, n):
-                    op = Intra2Opt(self._inst, route_idx, i, j)
+                    op = cls(instance, route_id, i, j)
                     neighbors.append(op)
 
         return neighbors

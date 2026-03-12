@@ -23,10 +23,11 @@ class IntraReverse(BaseOperator):
 
         return new_solution
 
+    @classmethod
     @override
-    def generate_neighbors(self, solution: Solution) -> list[BaseOperator]:
+    def generate_neighbors(cls, instance: Instance, solution: Solution) -> list[BaseOperator]:
         """
         Génère tous les échanges possibles intra-route pour chaque route.
         """
-        return [IntraReverse(self._inst, route_id)
-            for route_id, route in enumerate(solution.routes)]
+        return [cls(instance, route_id)
+                for route_id, route in enumerate(solution.routes)]

@@ -21,9 +21,14 @@ class BaseOperator(ABC):
         """
         ...
 
+    @classmethod
     @abstractmethod
-    def generate_neighbors(self, solution: Solution) -> list[BaseOperator]:
+    def generate_neighbors(cls, instance: Instance, solution: Solution) -> list[BaseOperator]:
         """
-        Génère tous les opérateurs de voisinage possibles pour la solution donnée.
+        Génère tous les opérateurs de voisinage possibles
         """
         ...
+
+    @classmethod
+    def get_operators(cls, *names):
+        return BaseOperator.__subclasses__()

@@ -1,4 +1,6 @@
 from typing import override
+
+from vehicle_routing_problem.core.instance import Instance
 from vehicle_routing_problem.core.solution import Solution
 from vehicle_routing_problem.core.route import Route
 from vehicle_routing_problem.operators.base_operator import BaseOperator
@@ -36,19 +38,21 @@ class IntraRelocate(BaseOperator):
         
         return new_solution
 
-
+    @classmethod
     @override
-    def generate_neighbors(self, solution: Solution) -> list[BaseOperator]:
+    def generate_neighbors(cls, instance: Instance, solution: Solution) -> list[BaseOperator]:
         """
         Génère tous les déplacements (relocate) possibles au sein de chaque route.
         """
         neighbors = []
+
         for route_id, route in enumerate(solution.routes):
             n = len(route.client_ids)
             for i in range(n):
                 for j in range(n):
                     if i == j:
                         continue
-                    op = IntraRelocate(self._inst, route_id, i, j)
+                    op = cls(instance, route_id, i, j)
                     neighbors.append(op)
+
         return neighbors
