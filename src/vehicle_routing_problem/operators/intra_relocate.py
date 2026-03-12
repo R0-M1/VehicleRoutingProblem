@@ -9,30 +9,30 @@ class IntraRelocate(BaseOperator):
     en position j au sein de la même route[cite: 97].
     """
 
-    def __init__(self, instance, route_idx: int, i: int, j: int):
+    def __init__(self, instance, route_id: int, client1: int, client2: int):
         super().__init__(instance)
-        self.route_idx = route_idx
-        self.i = i  
-        self.j = j  
+        self.route_id = route_id
+        self.client1 = client1
+        self.client2 = client2 
 
     @override
     def apply(self, solution: Solution) -> Solution:
         new_solution = solution.copy()
 
-        if self.route_idx >= len(new_solution.routes):
+        if self.route_id >= len(new_solution.routes):
             return new_solution
 
-        old_route = new_solution.routes[self.route_idx]
+        old_route = new_solution.routes[self.route_id]
         new_ids = old_route.client_ids.copy()
 
-        if self.i >= len(new_ids) or self.j >= len(new_ids):
+        if self.client1 >= len(new_ids) or self.client2 >= len(new_ids):
             return new_solution
 
-        client = new_ids.pop(self.i)
-        new_ids.insert(self.j, client)
+        client = new_ids.pop(self.client1)
+        new_ids.insert(self.client2, client)
 
 
-        new_solution.routes[self.route_idx] = Route(new_ids, self._inst)
+        new_solution.routes[self.route_id] = Route(new_ids, self._inst)
         
         return new_solution
 
@@ -43,12 +43,12 @@ class IntraRelocate(BaseOperator):
         Génère tous les déplacements (relocate) possibles au sein de chaque route.
         """
         neighbors = []
-        for route_idx, route in enumerate(solution.routes):
+        for route_id, route in enumerate(solution.routes):
             n = len(route.client_ids)
             for i in range(n):
                 for j in range(n):
                     if i == j:
                         continue
-                    op = IntraRelocate(self._inst, route_idx, i, j)
+                    op = IntraRelocate(self._inst, route_id, i, j)
                     neighbors.append(op)
         return neighbors
