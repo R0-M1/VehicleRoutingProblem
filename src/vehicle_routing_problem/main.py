@@ -44,3 +44,14 @@ if __name__ == "__main__":
         figsize=(15, 6),
         show=True
     )
+
+    Visualizer.compare_routes(
+    routes=[
+        solution.routes[0],
+        solution.routes[1],
+        solution.routes[2]
+    ],
+    instance=instance,
+    titles=["Route 1", "Route 2", "Route 3"],
+    show=True
+)
