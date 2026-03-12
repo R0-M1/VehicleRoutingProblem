@@ -1,12 +1,8 @@
 from pathlib import Path
 
 from vehicle_routing_problem.generator import RandomGenerator
-from vehicle_routing_problem.metaheuristics.local_search import LocalSearch
-from vehicle_routing_problem.metaheuristics.simulated_annealing import SimulatedAnnealing
-from vehicle_routing_problem.metaheuristics.tabu_search import TabuSearch
-from vehicle_routing_problem.operators.base_operator import BaseOperator
-from vehicle_routing_problem.test_metaheuristic import TestMetaheuristic
-from vehicle_routing_problem.test_operator import TestOperator
+from vehicle_routing_problem.tests.test_metaheuristic import TestMetaheuristic
+from vehicle_routing_problem.tests.test_operator import TestOperator
 from vehicle_routing_problem.utils.parser import VRPParser
 from vehicle_routing_problem.visualization.visualizer import Visualizer
 from vehicle_routing_problem.generator import RandomGenerator, GreedyGenerator
