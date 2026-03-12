@@ -1,4 +1,11 @@
 from pathlib import Path
+
+from vehicle_routing_problem.generator import RandomGenerator
+from vehicle_routing_problem.metaheuristics.local_search import LocalSearch
+from vehicle_routing_problem.metaheuristics.simulated_annealing import SimulatedAnnealing
+from vehicle_routing_problem.metaheuristics.tabu_search import TabuSearch
+from vehicle_routing_problem.operators.base_operator import BaseOperator
+from vehicle_routing_problem.test_metaheuristic import TestMetaheuristic
 from vehicle_routing_problem.test_operator import TestOperator
 from vehicle_routing_problem.utils.parser import VRPParser
 from vehicle_routing_problem.visualization.visualizer import Visualizer
@@ -12,16 +19,16 @@ if __name__ == "__main__":
 
     instance = VRPParser.parse(filepath)
 
-    generator = RandomGenerator(instance)
+    generator = GreedyGenerator(instance)
     solution = generator.generate()
 
-    print("\n--- Solution Générée ---")
+    print("\n--- Solution Initiale ---")
     print(f"Distance totale : {solution.total_distance:.2f} km")
     print(f"Nombre de véhicules : {solution.nb_vehicles}")
-    
-    # print("\n--- Étape 1 : Sans Time Windows ---")
-    # sol_init = generate_random_solution(nodes, capacity, dist_matrix, use_tw=False)
-    # print(f"Solution initiale : {sol_init.total_distance(dist_matrix):.2f} km avec {sol_init.total_vehicles()} véhicules.")
+
+
+    TestMetaheuristic.test_tabu_search(instance, solution)
+
 
     print("\n--- Visualisation d'une route ---")
 
@@ -56,6 +63,6 @@ if __name__ == "__main__":
 #     titles=["Route 1", "Route 2", "Route 3"],
 #     show=True
 # )
-    
+
     tester = TestOperator(instance, solution)
     new_solution = tester.test_intra_exchange(0, 1, 3)
