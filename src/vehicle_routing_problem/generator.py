@@ -12,7 +12,7 @@ class RandomGenerator:
     Algorithme : affectation aléatoire des clients aux véhicules.
     """
 
-    def __init__(self, instance: Instance, max_vehicles: int = None, seed: int = 42):
+    def __init__(self, instance: Instance, max_vehicles: int = 0, seed: int = 42):
         """
         Args:
             instance: Problème VRPTW
@@ -85,7 +85,7 @@ class GreedyGenerator:
     Générateur glouton "Nearest Neighbor" (meilleure init pour métaheuristiques).
     """
 
-    def __init__(self, instance: Instance, max_vehicles: int = None, seed: int = 42):
+    def __init__(self, instance: Instance, max_vehicles: int = 0, seed: int = 42):
         self.inst = instance
         self.max_vehicles = max_vehicles or instance.nb_clients // 3 + 1
         random.seed(seed)
