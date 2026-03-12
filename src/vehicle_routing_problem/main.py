@@ -1,4 +1,5 @@
 from pathlib import Path
+from vehicle_routing_problem.test_operator import TestOperator
 from vehicle_routing_problem.utils.parser import VRPParser
 from vehicle_routing_problem.visualization.visualizer import Visualizer
 from vehicle_routing_problem.generator import RandomGenerator, GreedyGenerator
@@ -29,29 +30,32 @@ if __name__ == "__main__":
     solution1 = generator.generate()
     solution2 = generator.generate()
 
-    Visualizer.single_route(
-        solution,
-        instance,
-        route_idx=route_index,
-        title=f"Route {route_index + 1}",
-        show=True
-    )
+#     Visualizer.single_route(
+#         solution,
+#         instance,
+#         route_idx=route_index,
+#         title=f"Route {route_index + 1}",
+#         show=True
+#     )
 
-    Visualizer.compare_solutions(
-        solutions=[solution1, solution2, solution],
-        instance=instance,
-        titles=["solution1", "solution2", "solution3"],
-        figsize=(15, 6),
-        show=True
-    )
+#     Visualizer.compare_solutions(
+#         solutions=[solution1, solution2, solution],
+#         instance=instance,
+#         titles=["solution1", "solution2", "solution3"],
+#         figsize=(15, 6),
+#         show=True
+#     )
 
-    Visualizer.compare_routes(
-    routes=[
-        solution.routes[0],
-        solution.routes[1],
-        solution.routes[2]
-    ],
-    instance=instance,
-    titles=["Route 1", "Route 2", "Route 3"],
-    show=True
-)
+#     Visualizer.compare_routes(
+#     routes=[
+#         solution.routes[0],
+#         solution.routes[1],
+#         solution.routes[2]
+#     ],
+#     instance=instance,
+#     titles=["Route 1", "Route 2", "Route 3"],
+#     show=True
+# )
+    
+    tester = TestOperator(instance, solution)
+    new_solution = tester.test_intra_exchange(0, 1, 3)
