@@ -1,6 +1,5 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from collections.abc import Iterator
 from vehicle_routing_problem.core.solution import Solution
 from vehicle_routing_problem.core.instance import Instance
 
@@ -23,7 +22,7 @@ class BaseOperator(ABC):
         ...
 
     @abstractmethod
-    def generate_neighbors(self, solution: Solution) -> Iterator[BaseOperator]:
+    def generate_neighbors(self, solution: Solution) -> list[BaseOperator]:
         """
         Génère tous les opérateurs de voisinage possibles pour la solution donnée.
         """
