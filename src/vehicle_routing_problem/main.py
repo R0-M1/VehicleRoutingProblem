@@ -1,6 +1,6 @@
 from pathlib import Path
 from vehicle_routing_problem.utils.parser import VRPParser
-from vehicle_routing_problem.visualization.Visualizer import Visualizer
+from vehicle_routing_problem.visualization.visualizer import Visualizer
 from vehicle_routing_problem.generator import RandomGenerator, GreedyGenerator
 
 if __name__ == "__main__":
@@ -26,10 +26,21 @@ if __name__ == "__main__":
 
     route_index = 0  # choisir la route à afficher
 
+    solution1 = generator.generate()
+    solution2 = generator.generate()
+
     Visualizer.single_route(
         solution,
         instance,
         route_idx=route_index,
         title=f"Route {route_index + 1}",
+        show=True
+    )
+
+    Visualizer.compare_solutions(
+        solutions=[solution1, solution2, solution],
+        instance=instance,
+        titles=["solution1", "solution2", "solution3"],
+        figsize=(15, 6),
         show=True
     )
