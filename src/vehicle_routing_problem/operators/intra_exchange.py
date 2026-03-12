@@ -1,7 +1,5 @@
-import random
 from typing import override
 
-from collections.abc import Iterator
 from vehicle_routing_problem.core.solution import Solution
 from vehicle_routing_problem.operators.base_operator import BaseOperator
 
