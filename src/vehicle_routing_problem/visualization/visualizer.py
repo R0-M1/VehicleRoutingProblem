@@ -4,8 +4,11 @@ import matplotlib.pyplot as plt
 from typing import Optional
 import numpy as np
 
+from vehicle_routing_problem.core.client import Client
+
 from ..core.solution import Solution
 from ..core.instance import Instance
+from ..core.route import Route
 
 
 class Visualizer:
@@ -321,147 +324,63 @@ class Visualizer:
 
     @staticmethod
     def compare_routes(
-        routes: list,
+        routes: list[Route],
         instance: Instance,
         titles: Optional[list[str]] = None,
-        figsize: tuple = (15, 5),
-        save_path: Optional[str] = None,
+        highlight_clients: Optional[list[int]] = None,
         show: bool = True
     ) -> None:
-        nb_routes = len(routes)
-
-        if nb_routes == 0:
-            raise ValueError("La liste de routes est vide.")
 
         if titles is None:
-            titles = [f"Route {i+1}" for i in range(nb_routes)]
+            titles = [f"Route {i}" for i in range(len(routes))]
 
-        cols = min(3, nb_routes)
-        rows = math.ceil(nb_routes / cols)
+        fig, axes = plt.subplots(1, len(routes), figsize=(7 * len(routes), 6))
 
-        fig, axes = plt.subplots(rows, cols, figsize=(5 * cols, 5 * rows))
-
-        if nb_routes == 1:
+        if len(routes) == 1:
             axes = [axes]
-        else:
-            axes = np.array(axes).flatten()
 
-        depot = instance.depot
-        color = "blue"
+        for ax, route, title in zip(axes, routes, titles):
 
-        # Pour garder la même échelle sur tous les graphes
-        all_x = [depot.x]
-        all_y = [depot.y]
-
-        for route in routes:
             path_ids = [0] + route.client_ids + [0]
             path_coords = [instance.clients[cid] for cid in path_ids]
-            all_x.extend(c.x for c in path_coords)
-            all_y.extend(c.y for c in path_coords)
 
-        margin = 5
-        x_min, x_max = min(all_x) - margin, max(all_x) + margin
-        y_min, y_max = min(all_y) - margin, max(all_y) + margin
+            xs = [client.x for client in path_coords]
+            ys = [client.y for client in path_coords]
 
-        for route, ax, title in zip(routes, axes, titles):
-            # Dépôt
-            ax.plot(
-                depot.x, depot.y,
-                marker='s',
-                markersize=15,
-                color='red',
-                zorder=5,
-                markeredgecolor='darkred',
-                markeredgewidth=2,
-                label='Depot'
-            )
-            ax.text(
+            ax.plot(xs, ys, marker="o")
+
+            depot = instance.depot
+            ax.scatter(
                 depot.x,
-                depot.y + 1.5,
-                'Depot\n(0)',
-                ha='center',
-                fontsize=9,
-                fontweight='bold'
+                depot.y,
+                s=150,
+                marker="s",
+                label="Depot"
             )
 
-            # Route
-            path_ids = [0] + route.client_ids + [0]
-            path_coords = [instance.clients[cid] for cid in path_ids]
-
-            xs = [c.x for c in path_coords]
-            ys = [c.y for c in path_coords]
-
-            ax.plot(
-                xs, ys,
-                color=color,
-                linewidth=2.5,
-                alpha=0.8
-            )
-
-            # Clients
-            for order, client_id in enumerate(route.client_ids, start=1):
+            for i, client_id in enumerate(route.client_ids):
                 client = instance.clients[client_id]
 
-                ax.plot(
-                    client.x, client.y,
-                    marker='o',
-                    markersize=9,
-                    color=color,
-                    alpha=0.95,
-                    zorder=4,
-                    markeredgecolor='black',
-                    markeredgewidth=0.6
+                ax.annotate(
+                    f"{client.name} ({i+1})",
+                    (client.x, client.y),
+                    textcoords="offset points",
+                    xytext=(5, 5)
                 )
 
-                ax.text(
-                    client.x,
-                    client.y - 2.2,
-                    client.name,
-                    ha='center',
-                    fontsize=8,
-                    color='black',
-                    fontweight='bold'
-                )
+                if highlight_clients and client_id in highlight_clients:
+                    ax.scatter(
+                        client.x,
+                        client.y,
+                        s=250,
+                        facecolors="none",
+                        edgecolors="black",
+                        linewidths=2,
+                        zorder=6
+                    )
 
-                ax.text(
-                    client.x + 0.8,
-                    client.y + 0.8,
-                    f'{order}',
-                    fontsize=7,
-                    color='black'
-                )
-
-            ax.set_xlim(x_min, x_max)
-            ax.set_ylim(y_min, y_max)
-            ax.set_xlabel('X', fontsize=9)
-            ax.set_ylabel('Y', fontsize=9)
-            ax.set_title(title, fontsize=10, fontweight='bold')
-            ax.grid(True, alpha=0.3, linestyle='--')
-            ax.set_aspect('equal')
-
-            stats_text = (
-                f"Clients: {len(route.client_ids)}\n"
-                f"Load: {route.total_demand}\n"
-                f"Distance: {route.distance:.2f}"
-            )
-            ax.text(
-                0.02, 0.98,
-                stats_text,
-                transform=ax.transAxes,
-                fontsize=9,
-                verticalalignment='top',
-                bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8)
-            )
-
-        # Désactiver les axes inutilisés
-        for ax in axes[nb_routes:]:
-            ax.axis("off")
-
-        plt.tight_layout()
-
-        if save_path:
-            plt.savefig(save_path, dpi=150, bbox_inches='tight')
-            print(f"Route comparison saved to: {save_path}")
+            ax.set_title(title)
+            ax.legend()
 
         if show:
             plt.show()
