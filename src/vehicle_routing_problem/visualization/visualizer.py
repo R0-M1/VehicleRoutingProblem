@@ -328,6 +328,7 @@ class Visualizer:
         instance: Instance,
         titles: Optional[list[str]] = None,
         highlight_clients: Optional[list[int]] = None,
+        suptitle: Optional[str] = None,
         show: bool = True
     ) -> None:
 
@@ -381,6 +382,10 @@ class Visualizer:
 
             ax.set_title(title)
             ax.legend()
+
+        if suptitle:
+            fig.suptitle(suptitle, fontsize=14, fontweight='bold', y=0.98)
+            fig.subplots_adjust(top=0.94)
 
         if show:
             plt.show()
