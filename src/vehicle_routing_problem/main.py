@@ -64,7 +64,7 @@ tester = TestOperator(instance, solution)
 
 # Test individual
 new_sol = tester.test_intra_exchange(0, 1, 3)
-new_sol = tester.test_intra_relocate(0, 1, 2)
+new_sol = tester.test_intra_relocate(0, 1, 6)
 new_sol = tester.test_intra_reverse(0)
 new_sol = tester.test_intra_2opt(0, 1, 5)
 new_sol = tester.test_inter_relocate(0, 1, 1, 2)  # route1, client, route2, pos
