@@ -49,9 +49,8 @@ class IntraRelocate(BaseOperator):
         for route_id, route in enumerate(solution.routes):
             n = len(route.client_ids)
             for i in range(n):
-                for j in range(n):
-                    if i == j:
-                        continue
+                # tous les couples (i, j) avec i < j
+                for j in range(i+1,n):
                     op = cls(instance, route_id, i, j)
                     neighbors.append(op)
 
