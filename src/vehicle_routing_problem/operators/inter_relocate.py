@@ -5,7 +5,7 @@ from vehicle_routing_problem.core.route import Route
 from vehicle_routing_problem.operators.base_operator import BaseOperator
 
 
-class IntraRelocate(BaseOperator):
+class InterRelocate(BaseOperator):
 
     def __init__(self, instance, route1_id: int, route2_id: int, client: int, insert_pos: int):
         super().__init__(instance)

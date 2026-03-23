@@ -4,7 +4,7 @@ from vehicle_routing_problem.operators.intra_exchange import IntraExchange
 from vehicle_routing_problem.operators.intra_relocate import IntraRelocate
 from vehicle_routing_problem.operators.intra_reverse import IntraReverse
 from vehicle_routing_problem.operators.intra_2opt import Intra2Opt
-from vehicle_routing_problem.operators.inter_relocate import IntraRelocate as InterRelocate
+from vehicle_routing_problem.operators.inter_relocate import InterRelocate
 from vehicle_routing_problem.operators.inter_exchange import InterExchange
 from vehicle_routing_problem.operators.inter_cross_exchange import InterCrossExchange
 from vehicle_routing_problem.visualization import visualizer
@@ -505,7 +505,7 @@ class TestOperator:
         print("\n=== TEST BEST INTER CROSS EXCHANGE ===")
         self.print_solution_info(self.solution, "Solution initiale")
 
-        generator = InterCrossExchange(self.instance, 0, 0, 0, 0, 0)
+        generator = InterCrossExchange(self.instance, 0, 0, 0, 0, 0, 0)
         neighbors = generator.generate_neighbors(self.solution)
 
         if not neighbors:
