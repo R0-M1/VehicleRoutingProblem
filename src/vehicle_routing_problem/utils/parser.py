@@ -1,8 +1,6 @@
 import re
 from pathlib import Path
 
-import numpy as np
-
 from vehicle_routing_problem.core.client import Client
 from vehicle_routing_problem.core.instance import Instance
 
@@ -12,8 +10,8 @@ class VRPParser:
 
     # Patterns compilés une seule fois
     _HEADER_PATTERN  = re.compile(r"^(\w+)\s*:\s*(.+)$", re.MULTILINE)
-    _DEPOT_PATTERN   = re.compile(r"DATA_DEPOTS\s*\[.*?\]:\s*\n((?:.+\n?)*?)(?=\n[A-Z]|\Z)")
-    _CLIENTS_PATTERN = re.compile(r"DATA_CLIENTS\s*\[.*?\]:\s*\n((?:.+\n?)*)")
+    _DEPOT_PATTERN   = re.compile(r"DATA_DEPOTS\s*\[.*?]:\s*\n((?:.+\n?)*?)(?=\n[A-Z]|\Z)")
+    _CLIENTS_PATTERN = re.compile(r"DATA_CLIENTS\s*\[.*?]:\s*\n((?:.+\n?)*)")
 
     @classmethod
     def parse(cls, filepath: Path) -> Instance:
