@@ -18,22 +18,6 @@ class Solution:
         expected = list(range(1, len(instance.clients)))
         return sorted(visited) == sorted(expected)
 
-    @property
-    def is_time_window_feasible(self) -> bool:
-        """Vérifie que toutes les routes respectent les fenêtres de temps."""
-        return all(route.is_time_window_feasible for route in self.routes)
-
-    @property
-    def is_capacity_feasible(self) -> bool:
-        """Vérifie que toutes les routes respectent les capacités."""
-        return all(route.is_capacity_feasible for route in self.routes)
-
-    def is_feasible(self, instance) -> bool:
-        """Vérifie la faisabilité complète : tous les clients visités, capacités et TW respectées."""
-        return (self.all_clients_visited(instance) and
-                self.is_capacity_feasible and
-                self.is_time_window_feasible)
-
     def copy(self) -> Solution:
         return Solution([r.copy() for r in self.routes])
 
