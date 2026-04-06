@@ -13,7 +13,7 @@ from ..core.route import Route
 
 class Visualizer:
     @staticmethod
-    def update(solution: Solution, instance: Instance, title: str = "Live VRP Solving", pause_time: float = 0.05):
+    def update(solution: Solution, instance: Instance, title: str = "Live VRP Solving", pause_time: float = 0.05, extra_stats: str = ""):
         if not plt.isinteractive():
             plt.ion()
             plt.figure(figsize=(12, 8))
@@ -74,6 +74,9 @@ class Visualizer:
             f"Vehicles used: {solution.nb_vehicles}\n"
             f"Total distance: {solution.total_distance:.2f}"
         )
+        if extra_stats:
+            stats_text += f"\n{extra_stats}"
+            
         ax.text(
             0.02, 0.98, stats_text, transform=ax.transAxes,
             fontsize=10, verticalalignment='top',

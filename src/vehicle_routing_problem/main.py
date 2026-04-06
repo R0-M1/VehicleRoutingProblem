@@ -25,7 +25,7 @@ if __name__ == "__main__":
     print(f"Nombre de véhicules : {solution.nb_vehicles}")
 
 
-    # TestMetaheuristic.test_simulated_annealing(instance, solution)
+    TestMetaheuristic.test_simulated_annealing(instance, solution)
 
 
     print("\n--- Visualisation d'une route ---")

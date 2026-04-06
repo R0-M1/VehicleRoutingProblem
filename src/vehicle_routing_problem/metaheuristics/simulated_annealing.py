@@ -23,6 +23,7 @@ class SimulatedAnnealing(BaseMetaheuristic):
     def solve(self, current_solution: Solution) -> Iterator[Solution]:
         current = current_solution.copy()
         temperature = self._initial_temperature
+        self.current_temperature = temperature
 
         while temperature > 1e-6:
             # Récupère TOUS les opérateurs disponibles
@@ -48,4 +49,5 @@ class SimulatedAnnealing(BaseMetaheuristic):
 
             # Refroidissement géométrique
             temperature *= self._cooling_rate
+            self.current_temperature = temperature
             yield current
