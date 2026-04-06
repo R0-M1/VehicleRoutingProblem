@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from vehicle_routing_problem.core.route import Route
 from vehicle_routing_problem.generator import RandomGenerator
 from vehicle_routing_problem.tests.test_metaheuristic import TestMetaheuristic
 from vehicle_routing_problem.tests.test_operator import TestOperator
@@ -25,8 +26,8 @@ if __name__ == "__main__":
     print(f"Nombre de véhicules : {solution.nb_vehicles}")
 
     
-    TestMetaheuristic.test_simulated_annealing(instance, solution)
-    Visualizer.keep_open()
+    # TestMetaheuristic.test_simulated_annealing(instance, solution)
+    # Visualizer.keep_open()
 
     print("\n--- Visualisation d'une route ---")
 
@@ -76,3 +77,15 @@ new_sol = tester.test_inter_cross_exchange(0, 1, 2, 1, 3, 4)  # routes et segmen
 # Tests « best » (trouvent la meilleure amélioration)
 # best_sol = tester.test_best_intra_exchange(update_current_solution=True)
 # best_sol = tester.test_best_inter_exchange(update_current_solution=True)
+
+# Test simple d'une route : dépôt → c2 → c1 → dépôt
+route_test = Route([2, 1], instance)
+
+# Test inverse de la route : dépôt → c1 → c2 → dépôt
+route_test = Route([1, 2], instance)
+
+print("Route test :", route_test)
+
+print("Faisabilité capacité :", route_test.is_capacity_feasible)
+print("Faisabilité temps :", route_test.is_time_feasible())
+print("Faisabilité globale :", route_test.is_feasible)
