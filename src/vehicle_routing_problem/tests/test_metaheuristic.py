@@ -26,7 +26,7 @@ class TestMetaheuristic:
             print(f"Iteration {i}: {sol.total_distance:.2f}")
             Visualizer.update(sol, instance, title=f"Local Search - Itération {i}")
         
-
+        Visualizer.keep_open()
 
     @timer
     @staticmethod
@@ -40,7 +40,7 @@ class TestMetaheuristic:
                 print(f"Limite {i} atteinte")
                 break
         
-
+        Visualizer.keep_open()
 
     @timer
     @staticmethod
@@ -63,5 +63,6 @@ class TestMetaheuristic:
                 print(f"Limite {i} atteinte")
                 break
         
+        Visualizer.keep_open()
 
     
