@@ -505,7 +505,7 @@ class TestOperator:
         print("\n=== TEST BEST INTER CROSS EXCHANGE ===")
         self.print_solution_info(self.solution, "Solution initiale")
 
-        generator = InterCrossExchange(self.instance, 0, 0, 0, 0, 0)
+        generator = InterCrossExchange(self.instance, 0, 0, 0, 0, 0, 0)
         neighbors = generator.generate_neighbors(self.solution)
 
         if not neighbors:

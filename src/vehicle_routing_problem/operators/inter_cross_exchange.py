@@ -61,9 +61,9 @@ class InterCrossExchange(BaseOperator):
         new_route1 = Route(new_ids1, self._inst)
         new_route2 = Route(new_ids2, self._inst)
 
-        # vérification capacité
-        if not new_route1.is_capacity_feasible or not new_route2.is_capacity_feasible:
-            return new_solution
+        # # vérification capacité
+        # if not new_route1.is_capacity_feasible or not new_route2.is_capacity_feasible:
+        #     return new_solution
 
         new_solution.routes[self.route1_id] = new_route1
         new_solution.routes[self.route2_id] = new_route2
