@@ -13,6 +13,82 @@ from ..core.route import Route
 
 class Visualizer:
     @staticmethod
+    def update(solution: Solution, instance: Instance, title: str = "Live VRP Solving", pause_time: float = 0.05):
+        if not plt.isinteractive():
+            plt.ion()
+            plt.figure(figsize=(12, 8))
+            plt.show(block=False)
+
+        fig = plt.gcf()
+        fig.suptitle(title, fontsize=13, fontweight='bold')
+        ax = plt.gca()
+
+        # Efface la figure pour la redessiner (approche la plus propre en statique)
+        ax.clear()
+
+        # Dépôt
+        depot = instance.depot
+        ax.plot(
+            depot.x, depot.y,
+            marker='s', markersize=15, color='red', zorder=5,
+            markeredgecolor='darkred', markeredgewidth=2
+        )
+        ax.text(
+            depot.x, depot.y + 1.5, 'Depot\n(0)', ha='center',
+            fontsize=9, fontweight='bold'
+        )
+
+        colors = plt.cm.tab20(np.linspace(0, 1, max(20, len(solution.routes))))
+
+        # Routes
+        for route_idx, route in enumerate(solution.routes):
+            color = colors[route_idx % len(colors)]
+            path_ids = [0] + route.client_ids + [0]
+            path_coords = [instance.clients[cid] for cid in path_ids]
+
+            xs = [c.x for c in path_coords]
+            ys = [c.y for c in path_coords]
+
+            ax.plot(
+                xs, ys, color=color, linewidth=2, alpha=0.7,
+                label=f'Route {route_idx + 1}'
+            )
+
+            for client_id in route.client_ids:
+                client = instance.clients[client_id]
+                ax.plot(
+                    client.x, client.y, marker='o', markersize=8, color=color,
+                    alpha=0.9, zorder=4, markeredgecolor='black', markeredgewidth=0.5
+                )
+                ax.text(
+                    client.x, client.y - 1.2, str(client_id), ha='center',
+                    fontsize=8, color=color, fontweight='bold'
+                )
+
+        ax.set_xlabel('X coordinate', fontsize=11, fontweight='bold')
+        ax.set_ylabel('Y coordinate', fontsize=11, fontweight='bold')
+        ax.grid(True, alpha=0.3, linestyle='--')
+        ax.set_aspect('equal')
+
+        stats_text = (
+            f"Vehicles used: {solution.nb_vehicles}\n"
+            f"Total distance: {solution.total_distance:.2f}"
+        )
+        ax.text(
+            0.02, 0.98, stats_text, transform=ax.transAxes,
+            fontsize=10, verticalalignment='top',
+            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8)
+        )
+
+        # Force la mise à jour de l'affichage
+        plt.pause(pause_time)
+        # plt.pause fait déjà l'équivalent de fig.canvas.draw() et flush_events()
+
+    @staticmethod
+    def keep_open():
+        plt.ioff()
+        plt.show()
+    @staticmethod
     def visualize_solution(
         solution: Solution,
         instance: Instance,
