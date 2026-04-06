@@ -97,28 +97,70 @@ class GreedyGenerator:
         while customers and len(routes) < self.max_vehicles:
             route_ids = []
             current_load = 0
-            last_cid = 0  # commence au dépôt
+            current_time = 0.0 # Départ du dépôt au temps 0
+            last_cid = 0
 
             while customers:
-                # Client le plus proche du dernier + capacité OK
                 best_cid = None
-                best_dist = float('inf')
+                best_score = float('inf')
 
                 for cid in customers:
-                    if (self.inst.clients[cid].demand + current_load <= self.inst.capacity
-                            and self.inst.dist_matrix[last_cid, cid] < best_dist):
+                    client = self.inst.clients[cid]
+                    
+                    # 1. Filtre Capacité
+                    if current_load + client.demand > self.inst.capacity:
+                        continue
+                        
+                    travel_time = self.inst.dist_matrix[last_cid, cid]
+                    arrival_time = current_time + travel_time
+                    
+                    # 2. Filtre Fermeture Client (la livraison peut se terminer après, 
+                    # mais il faut arriver et commencer le service avant la fin)
+                    if arrival_time > client.due_time:
+                        continue
+                        
+                    start_service_time = max(arrival_time, client.ready_time)
+                    
+                    # 3. Filtre Retour Dépôt
+                    depot = self.inst.clients[0]
+                    finish_service_time = start_service_time + client.service_time
+                    return_travel_time = self.inst.dist_matrix[cid, 0]
+                    
+                    if finish_service_time + return_travel_time > depot.due_time:
+                        continue
+                        
+                    # Si valide, on calcule le score (Earliest Start Time + petit poids pour la distance)
+                    score = start_service_time + 0.1 * travel_time
+                    
+                    if score < best_score:
+                        best_score = score
                         best_cid = cid
-                        best_dist = self.inst.dist_matrix[last_cid, cid]
 
-                if best_cid is None:  # plus de place
+                if best_cid is None:  # Plus de candidats valables (plus de place ou de temps)
                     break
 
-                route_ids.append(best_cid)
-                current_load += self.inst.clients[best_cid].demand
-                customers.remove(best_cid)
+                # Application du choix
+                best_client = self.inst.clients[best_cid]
+                travel_time = self.inst.dist_matrix[last_cid, best_cid]
+                
+                # Mise à l'heure de la montre
+                arrival_time = current_time + travel_time
+                start_service_time = max(arrival_time, best_client.ready_time)
+                current_time = start_service_time + best_client.service_time
+                
+                current_load += best_client.demand
                 last_cid = best_cid
+                route_ids.append(best_cid)
+                customers.remove(best_cid)
 
             if route_ids:
                 routes.append(Route(route_ids, self.inst))
+            else:
+                # Si aucun candidat dès le départ du dépôt, on arrête pour éviter une boucle infinie de camions vides
+                break
+
+        # Fallback de sécurité : on force chaque client oublié dans un camion pénalisé
+        for cid in customers:
+            routes.append(Route([cid], self.inst))
 
         return Solution(routes)

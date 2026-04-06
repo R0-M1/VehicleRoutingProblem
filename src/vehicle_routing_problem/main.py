@@ -24,25 +24,27 @@ if __name__ == "__main__":
     print("\n--- Solution Initiale ---")
     print(f"Distance totale : {solution.total_distance:.2f} km")
     print(f"Nombre de véhicules : {solution.nb_vehicles}")
-
+    
+    # Visualisons tout de suite cette solution de départ pour voir à quoi elle ressemble
+    Visualizer.visualize_solution(solution, instance, title="Solution Initiale Greedy VRPTW")
     
     # TestMetaheuristic.test_simulated_annealing(instance, solution)
     # Visualizer.keep_open()
 
     print("\n--- Visualisation d'une route ---")
 
-    route_index = 0  # choisir la route à afficher
+    route_index = 0  # choisir la route à afficher (0 = Route 1)
 
     solution1 = generator.generate()
     solution2 = generator.generate()
 
-#     Visualizer.single_route(
-#         solution,
-#         instance,
-#         route_idx=route_index,
-#         title=f"Route {route_index + 1}",
-#         show=True
-#     )
+    Visualizer.single_route(
+        solution,
+        instance,
+        route_idx=route_index,
+        title=f"Route {route_index + 1}",
+        show=True
+    )
 
 #     Visualizer.compare_solutions(
 #         solutions=[solution1, solution2, solution],
@@ -79,13 +81,18 @@ new_sol = tester.test_inter_cross_exchange(0, 1, 2, 1, 3, 4)  # routes et segmen
 # best_sol = tester.test_best_inter_exchange(update_current_solution=True)
 
 # Test simple d'une route : dépôt → c2 → c1 → dépôt
-route_test = Route([2, 1], instance)
+route_test0 = Route([2, 1], instance)
 
 # Test inverse de la route : dépôt → c1 → c2 → dépôt
-route_test = Route([1, 2], instance)
+route_test1 = Route([1, 2], instance)
 
-print("Route test :", route_test)
+print("Route test :", route_test0)
+print("Route test :", route_test1)
 
-print("Faisabilité capacité :", route_test.is_capacity_feasible)
-print("Faisabilité temps :", route_test.is_time_feasible())
-print("Faisabilité globale :", route_test.is_feasible)
+print("Faisabilité capacité :", route_test0.is_capacity_feasible)
+print("Faisabilité temps :", route_test0.is_time_feasible())
+print("Faisabilité globale :", route_test0.is_feasible)
+
+print("Faisabilité capacité :", route_test1.is_capacity_feasible)
+print("Faisabilité temps :", route_test1.is_time_feasible())
+print("Faisabilité globale :", route_test1.is_feasible)
