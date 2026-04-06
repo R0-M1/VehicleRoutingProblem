@@ -25,7 +25,7 @@ if __name__ == "__main__":
     print(f"Nombre de véhicules : {solution.nb_vehicles}")
 
 
-    TestMetaheuristic.test_simulated_annealing(instance, solution)
+    # TestMetaheuristic.test_simulated_annealing(instance, solution)
 
 
     print("\n--- Visualisation d'une route ---")
@@ -71,7 +71,7 @@ tester = TestOperator(instance, solution)
 # new_sol = tester.test_intra_2opt(0, 1, 5)
 # new_sol = tester.test_inter_relocate(0, 1, 1, 2)  # route1, client, route2, pos
 # new_sol = tester.test_inter_exchange(0, 1, 1, 0)  # route1, client1, route2, client2
-# new_sol = tester.test_inter_cross_exchange(0, 1, 2, 1, 3, 4)  # routes et segments
+new_sol = tester.test_inter_cross_exchange(0, 1, 2, 1, 3, 4)  # routes et segments
 
 # Tests « best » (trouvent la meilleure amélioration)
 # best_sol = tester.test_best_intra_exchange(update_current_solution=True)
