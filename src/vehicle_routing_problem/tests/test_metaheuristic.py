@@ -2,10 +2,22 @@ from vehicle_routing_problem.metaheuristics.local_search import LocalSearch
 from vehicle_routing_problem.metaheuristics.tabu_search import TabuSearch
 from vehicle_routing_problem.metaheuristics.simulated_annealing import SimulatedAnnealing
 from vehicle_routing_problem.visualization.visualizer import Visualizer
-
+import time
+from functools import wraps
 
 class TestMetaheuristic:
 
+    def timer(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            start = time.perf_counter()
+            result = func(*args, **kwargs)
+            end = time.perf_counter()
+            print(f"La fonction [{func.__name__}] a mis {end - start:.4f} secondes")
+            return result
+        return wrapper
+
+    @timer
     @staticmethod
     def test_local_search(instance, initial_solution):
         ls = LocalSearch(instance)
@@ -16,6 +28,7 @@ class TestMetaheuristic:
         
         Visualizer.keep_open()
 
+    @timer
     @staticmethod
     def test_tabu_search(instance, initial_solution):
         tabu = TabuSearch(instance, tabu_size=20)
@@ -29,6 +42,7 @@ class TestMetaheuristic:
         
         Visualizer.keep_open()
 
+    @timer
     @staticmethod
     def test_simulated_annealing(instance, initial_solution):
         sa = SimulatedAnnealing(instance, initial_temperature=1000.0, cooling_rate=0.995)
@@ -50,3 +64,5 @@ class TestMetaheuristic:
                 break
         
         Visualizer.keep_open()
+
+    
