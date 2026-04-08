@@ -30,9 +30,9 @@ if __name__ == "__main__":
     print(f"Distance totale : {solution.total_distance:.2f} km")
     print(f"Nombre de véhicules : {solution.nb_vehicles}")
 
-    
+
     TestMetaheuristic.test_simulated_annealing(instance, solution)
-    Visualizer.keep_open()
+
 
     print("\n--- Visualisation d'une route ---")
 
