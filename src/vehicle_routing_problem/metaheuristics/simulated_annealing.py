@@ -19,6 +19,10 @@ class SimulatedAnnealing(BaseMetaheuristic):
         super().__init__(instance)
         self._initial_temperature = initial_temperature
         self._cooling_rate = cooling_rate
+        self.observers = [] # Liste de VRPObserver
+        
+    def add_observer(self, observer):
+        self.observers.append(observer)
 
     def solve(self, current_solution: Solution) -> Iterator[Solution]:
         current = current_solution.copy()

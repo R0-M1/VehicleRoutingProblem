@@ -2,11 +2,13 @@ from vehicle_routing_problem.metaheuristics.local_search import LocalSearch
 from vehicle_routing_problem.metaheuristics.tabu_search import TabuSearch
 from vehicle_routing_problem.metaheuristics.simulated_annealing import SimulatedAnnealing
 from vehicle_routing_problem.visualization.visualizer import Visualizer
+from vehicle_routing_problem.export.datastorage import DataStorage
+from vehicle_routing_problem.export.exporterCSV import CSVExporter
 import time
+import datetime
 from functools import wraps
 
 class TestMetaheuristic:
-
     def timer(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -51,7 +53,12 @@ class TestMetaheuristic:
             # On lit simplement la propriété que l'on vient de créer dans sa !
             temp = sa.current_temperature
             print(f"Iteration {i}: {sol.total_distance:.2f} | Temp: {temp:.2f}")
-            
+            DataStorage.update({
+                "iteration": i,
+                "distance": round(sol.total_distance, 2),
+                "temperature": round(temp, 2),
+                "nb_vehicles": sol.nb_vehicles
+            })
             Visualizer.update(
                 sol, 
                 instance, 
@@ -62,6 +69,4 @@ class TestMetaheuristic:
             if i >= 50:
                 print(f"Limite {i} atteinte")
                 break
-        
-
     

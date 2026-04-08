@@ -8,6 +8,8 @@ from vehicle_routing_problem.visualization.visualizer import Visualizer
 from vehicle_routing_problem.generator import RandomGenerator, GreedyGenerator
 from vehicle_routing_problem.visualization.visualizer import Visualizer
 from vehicle_routing_problem.metaheuristics.simulated_annealing import SimulatedAnnealing
+from vehicle_routing_problem.export.datastorage import DataStorage
+from vehicle_routing_problem.export.exporterCSV import CSVExporter
 
 if __name__ == "__main__":
     print("--- Lancement du Projet VRPTW ---")
@@ -19,6 +21,10 @@ if __name__ == "__main__":
 
     generator = GreedyGenerator(instance)
     solution = generator.generate()
+
+    #init pour exporter
+    export_required = True
+    storage = DataStorage()
 
     print("\n--- Solution Initiale ---")
     print(f"Distance totale : {solution.total_distance:.2f} km")
@@ -34,6 +40,12 @@ if __name__ == "__main__":
 
     solution1 = generator.generate()
     solution2 = generator.generate()
+
+    if export_required:
+        csv_visitor = CSVExporter(filename="mon_export_vrp")
+        storage.accept(csv_visitor)
+    else:
+        print("Export CSV désactivé par l'utilisateur.")
 
 #     Visualizer.single_route(
 #         solution,
