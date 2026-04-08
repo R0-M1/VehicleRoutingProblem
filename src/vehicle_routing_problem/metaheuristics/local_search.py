@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from random import sample
 from typing import Iterator
 
 from vehicle_routing_problem.core.solution import Solution
@@ -14,8 +16,9 @@ class LocalSearch(BaseMetaheuristic):
     Arrête quand plus d'amélioration possible.
     """
 
-    def __init__(self, instance: Instance):
+    def __init__(self, instance: Instance, n_neighbors: int = 100):
         super().__init__(instance)
+        self._n_neighbors = n_neighbors
 
     def solve(self, current_solution: Solution) -> Iterator[Solution]:
         current = current_solution.copy()
@@ -30,10 +33,12 @@ class LocalSearch(BaseMetaheuristic):
             if not all_neighbors:
                 break
 
+            sampled_neighbors = sample(all_neighbors, k=min(100, len(all_neighbors)))
+
             best_op = None
             best_improvement = 0.0
 
-            for op in all_neighbors:
+            for op in sampled_neighbors:
                 neighbor = op.apply(current)
                 improvement = current.total_distance - neighbor.total_distance
 
