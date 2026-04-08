@@ -39,17 +39,25 @@ class TabuSearch(BaseMetaheuristic):
 
             sampled_neighbors = sample(all_neighbors, k=min(100, len(all_neighbors)))
 
+            if not all_neighbors:
+                break
+
             non_tabu = [op for op in sampled_neighbors if not self._is_tabu(op, self.tabu_list)]
 
             if not non_tabu:
                 break
 
             best_op = non_tabu[0]
+            best_solution = best_op.apply(current)
+
             for op in non_tabu[1:]:
-                if op.apply(current).total_distance < best_op.apply(current).total_distance:
+                candidate = op.apply(current)
+                if candidate.total_distance < best_solution.total_distance:
                     best_op = op
+                    best_solution = candidate
 
-            current = best_op.apply(current)
-            self.tabu_list.append(best_op)
+            if best_solution.total_distance >= current.total_distance:
+                self.tabu_list.append(best_op)
 
+            current = best_solution
             yield current
