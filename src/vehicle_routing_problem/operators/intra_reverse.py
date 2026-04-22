@@ -23,6 +23,22 @@ class IntraReverse(BaseOperator):
 
         return new_solution
 
+    def get_delta_cost(self, solution: Solution) -> float:
+        """
+        Calcule la différence de coût.
+        Dans le cas de distances euclidiennes (symétriques), inverser la totalité 
+        de la route ne change absolument pas sa distance totale. (Ex: Le chemin
+        Dépôt -> A -> B -> Dépôt a la même longueur que Dépôt -> B -> A -> Dépôt).
+        Le coût (Delta) est donc toujours exactement 0 !
+        """
+        if self.route_id >= len(solution.routes):
+            return 0.0
+
+        # Si un jour tu utilises des distances asymétriques (ex: routes en sens unique),
+        # il faudrait boucler sur toute la route ici (O(n)) pour recalculer les distances à l'envers.
+        # Mais pour des points 2D géométriques, c'est instantané.
+        return 0.0
+
     @classmethod
     @override
     def generate_neighbors(cls, instance: Instance, solution: Solution) -> list[BaseOperator]:

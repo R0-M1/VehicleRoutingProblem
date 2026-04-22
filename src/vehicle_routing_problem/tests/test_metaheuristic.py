@@ -58,7 +58,7 @@ class TestMetaheuristic:
     @timer
     @staticmethod
     def test_simulated_annealing(instance, initial_solution):
-        sa = SimulatedAnnealing(instance, initial_temperature=100.0, cooling_rate=0.9999)
+        sa = SimulatedAnnealing(instance, initial_temperature=50, cooling_rate=0.999)
         print("Recuit Simulé:")
         for i, sol in enumerate(sa.solve(initial_solution)):
             # On lit simplement la propriété que l'on vient de créer dans sa !
@@ -70,13 +70,13 @@ class TestMetaheuristic:
                 "temperature": round(temp, 2),
                 "nb_vehicles": sol.nb_vehicles
             })
-            Visualizer.update(
-                sol,
-                instance,
-                title=f"Test Recuit Simulé - Itération {i}",
-                extra_stats=f"Température : {temp:.2f}"
-            )
+            # Visualizer.update(
+            #     sol,
+            #     instance,
+            #     title=f"Test Recuit Simulé - Itération {i}",
+            #     extra_stats=f"Température : {temp:.2f}"
+            # )
 
-            if i >= 50:
+            if i >= 1000:
                 print(f"Limite {i} atteinte")
                 break

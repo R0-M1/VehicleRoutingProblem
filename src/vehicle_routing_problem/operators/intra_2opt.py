@@ -36,6 +36,49 @@ class Intra2Opt(BaseOperator):
 
         return new_solution
 
+    def get_delta_cost(self, solution: Solution) -> float:
+        """
+        Calcule la différence de coût pour un 2-opt.
+        En supposant une matrice de distance symétrique (Euclidienne), les arêtes
+        à l'intérieur du segment inversé gardent la même longueur. 
+        On ne calcule donc que l'impact des arêtes cassées et recréées aux extrémités.
+        """
+        if self.route_id >= len(solution.routes):
+            return 0.0
+
+        route = solution.routes[self.route_id]
+        
+        n = len(route.client_ids)
+        if self.client1 >= n or self.client2 >= n or self.client1 >= self.client2:
+            return 0.0
+
+        # Ajout des dépôts
+        ids = [0] + route.client_ids + [0]
+        dm = self._inst.dist_matrix
+
+        # Indices ajustés (+1 car le dépôt est à l'index 0 de "ids")
+        i = self.client1 + 1
+        j = self.client2 + 1
+
+        ci = ids[i]         # Premier noeud du segment à inverser
+        cj = ids[j]         # Dernier noeud du segment à inverser
+        pi = ids[i - 1]     # Le noeud AVANT le segment
+        nj = ids[j + 1]     # Le noeud APRÈS le segment
+
+        # Pour le 2-opt, on casse deux arêtes (avant et après le segment):
+        # pi -> ci   et   cj -> nj
+        removed = dm[pi][ci] + dm[cj][nj]
+        
+        # Et on recrée deux arêtes (en croisant, puisque le segment est inversé):
+        # pi -> cj   et   ci -> nj
+        added = dm[pi][cj] + dm[ci][nj]
+
+        # Note: si les distances étaient asymétriques (ex: routes avec du vent), 
+        # il faudrait aussi recalculer tout l'intérieur du segment qui est inversé.
+        # Ici la matrice de l'instance est Euclidienne (symétrique), donc c'est O(1).
+
+        return float(added - removed)
+
     @classmethod
     @override
     def generate_neighbors(cls, instance: Instance, solution: Solution) -> List[BaseOperator]:

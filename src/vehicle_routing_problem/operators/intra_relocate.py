@@ -33,10 +33,51 @@ class IntraRelocate(BaseOperator):
         client = new_ids.pop(self.client1)
         new_ids.insert(self.client2, client)
 
-
         new_solution.routes[self.route_id] = Route(new_ids, self._inst)
         
         return new_solution
+
+    def get_delta_cost(self, solution: Solution) -> float:
+        """
+        Calcule la différence de coût pour un déplacement de client (Relocate) en $O(1)$.
+        """
+        if self.route_id >= len(solution.routes):
+            return 0.0
+
+        route = solution.routes[self.route_id]
+        n_clients = len(route.client_ids)
+
+        if self.client1 >= n_clients or self.client2 >= n_clients or self.client1 == self.client2:
+            return 0.0
+
+        ids = [0] + route.client_ids + [0]
+        dm = self._inst.dist_matrix
+
+        u = self.client1 + 1  # L'index du client déplacé dans `ids`
+
+        # Détermination des points d'insertion (qui sera avant et après le client déplacé ?)
+        if self.client1 < self.client2:
+            ins_prev = self.client2 + 1
+            ins_next = self.client2 + 2
+        else: # self.client1 > self.client2
+            ins_prev = self.client2
+            ins_next = self.client2 + 1
+
+        # 3 arêtes sont brisées :
+        # L'ancienne arête avant le client déplacé, l'arête après, et l'arête à l'endroit de l'insertion.
+        removed = (
+            dm[ids[u-1]][ids[u]] + dm[ids[u]][ids[u+1]] 
+            + dm[ids[ins_prev]][ids[ins_next]]
+        )
+
+        # 3 arêtes sont recréées :
+        # On relie les anciens voisins du client déplacé, et on insère le client avec ses nouveaux voisins.
+        added = (
+            dm[ids[u-1]][ids[u+1]] 
+            + dm[ids[ins_prev]][ids[u]] + dm[ids[u]][ids[ins_next]]
+        )
+
+        return float(added - removed)
 
     @classmethod
     @override

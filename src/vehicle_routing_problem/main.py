@@ -23,29 +23,29 @@ if __name__ == "__main__":
     solution = generator.generate()
 
     #init pour exporter
-    export_required = True
+    export_required = False
     storage = DataStorage()
 
     print("\n--- Solution Initiale ---")
     print(f"Distance totale : {solution.total_distance:.2f} km")
     print(f"Nombre de véhicules : {solution.nb_vehicles}")
 
+    
+    TestMetaheuristic.test_tabu_search(instance, solution)
 
-    TestMetaheuristic.test_simulated_annealing(instance, solution)
 
+    # print("\n--- Visualisation d'une route ---")
 
-    print("\n--- Visualisation d'une route ---")
+    # route_index = 0  # choisir la route à afficher
 
-    route_index = 0  # choisir la route à afficher
+    # solution1 = generator.generate()
+    # solution2 = generator.generate()
 
-    solution1 = generator.generate()
-    solution2 = generator.generate()
-
-    if export_required:
-        csv_visitor = CSVExporter(filename="mon_export_vrp")
-        storage.accept(csv_visitor)
-    else:
-        print("Export CSV désactivé par l'utilisateur.")
+    # if export_required:
+    #     csv_visitor = CSVExporter(filename="mon_export_vrp")
+    #     storage.accept(csv_visitor)
+    # else:
+    #     print("Export CSV désactivé par l'utilisateur.")
 
 #     Visualizer.single_route(
 #         solution,
@@ -74,7 +74,7 @@ if __name__ == "__main__":
 #     show=True
 # )
 
-tester = TestOperator(instance, solution)
+# tester = TestOperator(instance, solution)
 
 # Test individual
 # new_sol = tester.test_intra_exchange(0, 1, 3)
@@ -83,7 +83,7 @@ tester = TestOperator(instance, solution)
 # new_sol = tester.test_intra_2opt(0, 1, 5)
 # new_sol = tester.test_inter_relocate(0, 1, 1, 2)  # route1, client, route2, pos
 # new_sol = tester.test_inter_exchange(0, 1, 1, 0)  # route1, client1, route2, client2
-new_sol = tester.test_inter_cross_exchange(0, 1, 2, 1, 3, 4)  # routes et segments
+# new_sol = tester.test_inter_cross_exchange(0, 1, 2, 1, 3, 4)  # routes et segments
 
 # Tests « best » (trouvent la meilleure amélioration)
 # best_sol = tester.test_best_intra_exchange(update_current_solution=True)

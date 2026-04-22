@@ -28,28 +28,37 @@ class SimulatedAnnealing(BaseMetaheuristic):
         current = current_solution.copy()
         temperature = self._initial_temperature
         self.current_temperature = temperature
+        # Récupère TOUS les opérateurs disponibles
+        all_operators = BaseOperator.get_operators(self._inst)
 
         while temperature > 1e-6:
-            # Récupère TOUS les opérateurs disponibles
-            all_operators = BaseOperator.get_operators(self._inst)
+            
 
-            # Génère TOUS les voisins possibles
-            all_neighbors: list[BaseOperator] = []
-            for op_type in all_operators:
-                all_neighbors.extend(op_type.generate_neighbors(self._inst, current))
+            # # Génère TOUS les voisins possibles
+            # all_neighbors: list[BaseOperator] = []
+            # for op_type in all_operators:
+            #     all_neighbors.extend(op_type.generate_neighbors(self._inst, current))
 
-            if not all_neighbors:
-                break
+             # 1. On tire au sort un seul TYPE d'opération (ex: juste InterExchange)
+            random_op_type = random.choice(all_operators)
+
+
+            # 2. On ne génère les voisins QUE pour celui-ci
+            specific_neighbors = random_op_type.generate_neighbors(self._inst, current)
+
+            if not specific_neighbors:
+                continue
 
             # Choix aléatoire d'un voisin (simple !)
-            candidate_op = random.choice(all_neighbors)
+            candidate_op = random.choice(specific_neighbors)
             candidate = candidate_op.apply(current)  # apply() fait déjà le copy()
 
-            delta = candidate.total_distance - current.total_distance
+            delta = candidate_op.get_delta_cost(current)
 
-            # Critère de Metropolis : accepte toujours les améliorations
             if delta < 0 or random.random() < math.exp(-delta / temperature):
-                current = candidate
+                # La ligne suivante, très coûteuse, N'EST EXÉCUTÉE QUE SUR LES MOUVEMENTS ACCEPTÉS !
+                current = candidate_op.apply(current) 
+
 
             # Refroidissement géométrique
             temperature *= self._cooling_rate
