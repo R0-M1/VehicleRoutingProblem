@@ -40,6 +40,60 @@ class InterRelocate(BaseOperator):
 
         return new_solution
 
+    def get_delta_cost(self, solution: Solution) -> float:
+        """
+        Calcule la différence de coût pour un déplacement de client d'une route à une ESPÈCE AUTRE.
+        O(1) en cassant 3 arêtes et recréant 3 arêtes.
+        """
+        if self.route1_id >= len(solution.routes) or self.route2_id >= len(solution.routes):
+            return 0.0
+            
+        # Par sécurité, si l'opérateur est appelé sur la même route, le delta serait l'équivalent IntraRelocate
+        if self.route1_id == self.route2_id:
+            # Soit on le recalcule comme IntraRelocate, soit on l'ignore car ce doublon 
+            # de mouvement est supprimé dans generate_neighbors ci-dessous.
+            return 0.0
+
+        route1 = solution.routes[self.route1_id]
+        route2 = solution.routes[self.route2_id]
+
+        if self.client >= len(route1.client_ids):
+            return 0.0
+
+        dm = self._inst.dist_matrix
+
+        ids1 = [0] + route1.client_ids + [0]
+        ids2 = [0] + route2.client_ids + [0]
+
+        # ---- ROUTE 1 (Extraction) ----
+        u = self.client + 1
+        c = ids1[u]
+        
+        p1 = ids1[u - 1]
+        n1 = ids1[u + 1]
+
+        # ---- ROUTE 2 (Insertion) ----
+        insert_pos = min(self.insert_pos, len(route2.client_ids))
+        p2 = ids2[insert_pos]      # Le noeud juste avant l'endroit d'insertion
+        n2 = ids2[insert_pos + 1]  # Le noeud juste après l'endroit d'insertion
+
+        # On casse 3 arêtes :
+        # - Les 2 arêtes de 'c' dans la route 1
+        # - L'arête à l'endroit d'insertion dans la route 2
+        removed = (
+            dm[p1][c] + dm[c][n1] +
+            dm[p2][n2]
+        )
+
+        # On recrée 3 arêtes :
+        # - On bouche le trou dans la route 1 (les anciens voisins de c se relient)
+        # - On insère 'c' dans la route 2 (entre p2 et n2)
+        added = (
+            dm[p1][n1] +
+            dm[p2][c] + dm[c][n2]
+        )
+
+        return float(added - removed)
 
     @classmethod
     @override
@@ -48,6 +102,10 @@ class InterRelocate(BaseOperator):
 
         for r1, route1 in enumerate(solution.routes):
             for r2, route2 in enumerate(solution.routes):
+                # OPTIMISATION MAJEURE : On évite de générer les doublons de IntraRelocate
+                if r1 == r2:
+                    continue
+
                 for i in range(len(route1.client_ids)):
                     for j in range(len(route2.client_ids) + 1):
                         neighbors.append(

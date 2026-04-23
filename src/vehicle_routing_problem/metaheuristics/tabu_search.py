@@ -1,5 +1,6 @@
 from __future__ import annotations
 from collections import deque
+from random import sample
 from typing import Iterator
 
 from vehicle_routing_problem.core.solution import Solution
@@ -14,9 +15,11 @@ class TabuSearch(BaseMetaheuristic):
     le meilleur mouvement non tabou.
     """
 
-    def __init__(self, instance: Instance, tabu_size: int):
+    def __init__(self, instance: Instance, tabu_size: int, n_neighbors: int = 100):
         super().__init__(instance)
         self._tabu_size = tabu_size
+        self._n_neighbors = n_neighbors
+        self.tabu_list: deque[BaseOperator] = deque(maxlen=self._tabu_size)
 
     @staticmethod
     def _is_tabu(op: BaseOperator, tabu_list: deque) -> bool:
@@ -24,7 +27,7 @@ class TabuSearch(BaseMetaheuristic):
         return any(op.__dict__ == tabu_op.__dict__ for tabu_op in tabu_list)
 
     def solve(self, current_solution: Solution) -> Iterator[Solution]:
-        tabu_list: deque[BaseOperator] = deque(maxlen=self._tabu_size)
+        self.tabu_list.clear()
         current = current_solution.copy()
 
         while True:
@@ -34,17 +37,27 @@ class TabuSearch(BaseMetaheuristic):
             for op_type in all_operators:
                 all_neighbors.extend(op_type.generate_neighbors(self._inst, current))
 
-            non_tabu = [op for op in all_neighbors if not self._is_tabu(op, tabu_list)]
+            sampled_neighbors = sample(all_neighbors, k=min(100, len(all_neighbors)))
+
+            if not all_neighbors:
+                break
+
+            non_tabu = [op for op in sampled_neighbors if not self._is_tabu(op, self.tabu_list)]
 
             if not non_tabu:
                 break
 
             best_op = non_tabu[0]
+            best_solution = best_op.apply(current)
+
             for op in non_tabu[1:]:
-                if op.apply(current).total_distance < best_op.apply(current).total_distance:
+                candidate = op.apply(current)
+                if candidate.total_distance < best_solution.total_distance:
                     best_op = op
+                    best_solution = candidate
 
-            current = best_op.apply(current)
-            tabu_list.append(best_op)
+            if best_solution.total_distance >= current.total_distance:
+                self.tabu_list.append(best_op)
 
+            current = best_solution
             yield current

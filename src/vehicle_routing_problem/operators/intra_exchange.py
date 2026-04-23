@@ -35,6 +35,42 @@ class IntraExchange(BaseOperator):
 
         return new_solution
 
+    def get_delta_cost(self, solution: Solution) -> float:
+        """
+        Calcule la différence de coût (distance) $O(1)$ sans recréer la solution.
+        """
+        if self.route_id >= len(solution.routes):
+            return 0.0
+
+        route = solution.routes[self.route_id]
+        if self.client1 >= len(route.client_ids) or self.client2 >= len(route.client_ids):
+            return 0.0
+
+        # On rajoute les dépôts (id=0) au début et à la fin pour avoir les vrais indices
+        ids = [0] + route.client_ids + [0]
+        dm = self._inst.dist_matrix
+
+        # Indices ajustés (+1 à cause du dépôt initial)
+        i = self.client1 + 1
+        j = self.client2 + 1
+
+        ci = ids[i]
+        cj = ids[j]
+        pi = ids[i - 1]
+        ni = ids[i + 1]
+        pj = ids[j - 1]
+        nj = ids[j + 1]
+
+        if j == i + 1: # Cas où les deux clients testés sont adjacents dans la liste
+            removed = dm[pi][ci] + dm[ci][cj] + dm[cj][nj]
+            added   = dm[pi][cj] + dm[cj][ci] + dm[ci][nj]
+        else:
+            removed = dm[pi][ci] + dm[ci][ni] + dm[pj][cj] + dm[cj][nj]
+            added   = dm[pi][cj] + dm[cj][ni] + dm[pj][ci] + dm[ci][nj]
+
+        return float(added - removed)
+
+
     @classmethod
     @override
     def generate_neighbors(cls, instance: Instance, solution: Solution) -> List[BaseOperator]:

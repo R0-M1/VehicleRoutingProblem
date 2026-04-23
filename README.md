@@ -1,14 +1,7 @@
 # VehicleRoutingProblem
 Vehicle Routing Problem with Time Windows
 
-Dans IntraRelocate, tout vérifier et surtout a vérifier la methode generate_neighbors() car je pense qu'elle génère des opérateurs qui se répétent
-
 peut etre ajouter le parametre min_temperature dans recuit simule
-
-
-s'intéresser aux fonctions "generate_neigboors"
-creer une update pour la visualisation lors des meta-heuristiques
-vérifier les capacités lors d'un exchange inter
 
 
 Long terme : 

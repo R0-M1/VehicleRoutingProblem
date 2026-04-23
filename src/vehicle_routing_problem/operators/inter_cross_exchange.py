@@ -70,6 +70,72 @@ class InterCrossExchange(BaseOperator):
 
         return new_solution
 
+    def get_delta_cost(self, solution: Solution) -> float:
+        """
+        Calcule la différence de coût pour un échange croisé entre deux routes.
+        O(1) calcul : on casse 4 arêtes (2 sur chaque route) et on reconnecte (4 arêtes créées).
+        """
+        if (
+            self.route1_id >= len(solution.routes)
+            or self.route2_id >= len(solution.routes)
+        ):
+            return 0.0
+
+        route1 = solution.routes[self.route1_id]
+        route2 = solution.routes[self.route2_id]
+
+        ids1 = route1.client_ids
+        ids2 = route2.client_ids
+
+        if (
+            self.end1 >= len(ids1)
+            or self.end2 >= len(ids2)
+            or self.start1 > self.end1
+            or self.start2 > self.end2
+        ):
+            return 0.0
+
+        # Ajout des dépôts pour obtenir tous les vrais identifiants
+        full_ids1 = [0] + ids1 + [0]
+        full_ids2 = [0] + ids2 + [0]
+        dm = self._inst.dist_matrix
+
+        # Indices ajustés avec +1 (à cause des dépôts)
+        u1 = self.start1 + 1
+        v1 = self.end1 + 1
+        u2 = self.start2 + 1
+        v2 = self.end2 + 1
+
+        # Voisins dans la route 1 (avant et après le segment 1)
+        p1 = full_ids1[u1 - 1]
+        n1 = full_ids1[v1 + 1]
+
+        # Voisins dans la route 2 (avant et après le segment 2)
+        p2 = full_ids2[u2 - 1]
+        n2 = full_ids2[v2 + 1]
+
+        # Points extrêmes des segments échangés
+        # seg1 va de s1 à e1
+        s1 = full_ids1[u1]
+        e1 = full_ids1[v1]
+        # seg2 va de s2 à e2
+        s2 = full_ids2[u2]
+        e2 = full_ids2[v2]
+
+        # 4 arrêtes brisées
+        removed = (
+            dm[p1][s1] + dm[e1][n1] + 
+            dm[p2][s2] + dm[e2][n2]
+        )
+
+        # 4 arrêtes recréées (en croisant les routes)
+        added = (
+            dm[p1][s2] + dm[e2][n1] +
+            dm[p2][s1] + dm[e1][n2]
+        )
+
+        return float(added - removed)
+
     @classmethod
     @override
     def generate_neighbors(
