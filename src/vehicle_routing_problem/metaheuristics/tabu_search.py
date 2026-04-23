@@ -1,6 +1,6 @@
 from __future__ import annotations
 from collections import deque
-from random import sample
+import random
 from typing import Iterator
 
 from vehicle_routing_problem.core.solution import Solution
@@ -19,45 +19,72 @@ class TabuSearch(BaseMetaheuristic):
         super().__init__(instance)
         self._tabu_size = tabu_size
         self._n_neighbors = n_neighbors
-        self.tabu_list: deque[BaseOperator] = deque(maxlen=self._tabu_size)
+        self.tabu_list: deque[tuple] = deque(maxlen=self._tabu_size)
+        self.tabu_set: set[tuple] = set()
 
-    @staticmethod
-    def _is_tabu(op: BaseOperator, tabu_list: deque) -> bool:
-        """Comparaison sémantique des opérateurs par leurs attributs."""
-        return any(op.__dict__ == tabu_op.__dict__ for tabu_op in tabu_list)
+    def _is_tabu(self, op: BaseOperator) -> bool:
+        """Vérification en O(1) grâce au set et à la signature."""
+        return op.get_signature() in self.tabu_set
+
+    def _add_tabu(self, op: BaseOperator):
+        """Ajoute un opérateur à la liste et au set tabou."""
+        signature = op.get_signature()
+        if len(self.tabu_list) == self._tabu_size:
+            old_signature = self.tabu_list.popleft()
+            self.tabu_set.remove(old_signature)
+        self.tabu_list.append(signature)
+        self.tabu_set.add(signature)
 
     def solve(self, current_solution: Solution) -> Iterator[Solution]:
         self.tabu_list.clear()
+        self.tabu_set.clear()
         current = current_solution.copy()
 
         while True:
             all_operators = BaseOperator.get_operators(self._inst)
+            
+            sampled_neighbors = []
+            available_ops = list(all_operators)
 
-            all_neighbors: list[BaseOperator] = []
-            for op_type in all_operators:
-                all_neighbors.extend(op_type.generate_neighbors(self._inst, current))
+            attempts = 0
+            max_attempts = self._n_neighbors * 10  # Sécurité pour éviter boucle infinie
+            
+            while len(sampled_neighbors) < self._n_neighbors and available_ops and attempts < max_attempts:
+                attempts += 1
+                op_type = random.choice(available_ops)
+                
+                neighbor = op_type.sample_random_neighbor(self._inst, current)
+                
+                if neighbor is not None:
+                    sampled_neighbors.append(neighbor)
+                else:
+                    # Si l'opérateur retourne None (impossible, ex: 1 seule route dispo pour un InterExchange), on l'abandonne
+                    available_ops.remove(op_type)
 
-            sampled_neighbors = sample(all_neighbors, k=min(100, len(all_neighbors)))
-
-            if not all_neighbors:
+            if not sampled_neighbors:
                 break
 
-            non_tabu = [op for op in sampled_neighbors if not self._is_tabu(op, self.tabu_list)]
+            non_tabu = [op for op in sampled_neighbors if not self._is_tabu(op)]
 
             if not non_tabu:
                 break
 
             best_op = non_tabu[0]
-            best_solution = best_op.apply(current)
+            best_delta = best_op.get_delta_cost(current)
 
             for op in non_tabu[1:]:
-                candidate = op.apply(current)
-                if candidate.total_distance < best_solution.total_distance:
+                delta = op.get_delta_cost(current)
+                # Comme delta = (Nouvelle - Ancienne), un delta négatif est une baisse de distance.
+                # On cherche donc à MINIMISER le delta.
+                if delta < best_delta:
                     best_op = op
-                    best_solution = candidate
+                    best_delta = delta
 
-            if best_solution.total_distance >= current.total_distance:
-                self.tabu_list.append(best_op)
+            best_solution = best_op.apply(current)
+
+            # Si le delta >= 0, la distance augmente ou stagne (mauvais mouvement), on l'ajoute en Tabou.
+            if best_delta >= 0:
+                self._add_tabu(best_op)
 
             current = best_solution
-            yield current
+            yield current   

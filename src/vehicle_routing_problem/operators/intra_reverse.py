@@ -47,3 +47,12 @@ class IntraReverse(BaseOperator):
         """
         return [cls(instance, route_id)
                 for route_id, route in enumerate(solution.routes)]
+
+    @classmethod
+    @override
+    def sample_random_neighbor(cls, instance: Instance, solution: Solution) -> BaseOperator | None:
+        if not solution.routes:
+            return None
+        import random
+        route_id = random.randrange(len(solution.routes))
+        return cls(instance, route_id)

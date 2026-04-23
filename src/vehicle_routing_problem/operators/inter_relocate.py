@@ -113,3 +113,21 @@ class InterRelocate(BaseOperator):
                         )
 
         return neighbors
+
+    @classmethod
+    @override
+    def sample_random_neighbor(cls, instance: Instance, solution: Solution) -> BaseOperator | None:
+        import random
+        if len(solution.routes) < 2:
+            return None
+        valid_r1 = [r_id for r_id, r in enumerate(solution.routes) if len(r.client_ids) > 0]
+        if not valid_r1:
+            return None
+        r1 = random.choice(valid_r1)
+        r2 = random.randrange(len(solution.routes))
+        while r1 == r2:
+            r2 = random.randrange(len(solution.routes))
+            
+        i = random.randrange(len(solution.routes[r1].client_ids))
+        j = random.randrange(len(solution.routes[r2].client_ids) + 1)
+        return cls(instance, r1, r2, i, j)

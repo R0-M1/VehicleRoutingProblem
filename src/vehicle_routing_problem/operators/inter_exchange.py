@@ -108,3 +108,18 @@ class InterExchange(BaseOperator):
                         neighbors.append(cls(instance, r1, r2, i, j))
 
         return neighbors
+
+    @classmethod
+    @override
+    def sample_random_neighbor(cls, instance: Instance, solution: Solution) -> BaseOperator | None:
+        import random
+        valid_routes = [r_id for r_id, r in enumerate(solution.routes) if len(r.client_ids) > 0]
+        if len(valid_routes) < 2:
+            return None
+        r1, r2 = random.sample(valid_routes, 2)
+        if r1 > r2:
+            r1, r2 = r2, r1
+            
+        i = random.randrange(len(solution.routes[r1].client_ids))
+        j = random.randrange(len(solution.routes[r2].client_ids))
+        return cls(instance, r1, r2, i, j)

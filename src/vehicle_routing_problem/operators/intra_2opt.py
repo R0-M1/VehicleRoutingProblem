@@ -97,3 +97,17 @@ class Intra2Opt(BaseOperator):
                     neighbors.append(op)
 
         return neighbors
+
+    @classmethod
+    @override
+    def sample_random_neighbor(cls, instance: Instance, solution: Solution) -> BaseOperator | None:
+        import random
+        valid_routes = [r_id for r_id, r in enumerate(solution.routes) if len(r.client_ids) >= 2]
+        if not valid_routes:
+            return None
+        route_id = random.choice(valid_routes)
+        n = len(solution.routes[route_id].client_ids)
+        i, j = random.sample(range(n), 2)
+        if i > j:
+            i, j = j, i
+        return cls(instance, route_id, i, j)

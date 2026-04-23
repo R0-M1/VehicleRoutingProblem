@@ -161,3 +161,25 @@ class InterCrossExchange(BaseOperator):
                                     cls(instance, r1, r2, i, j, k, l)
                                 )
         return neighbors
+
+    @classmethod
+    @override
+    def sample_random_neighbor(cls, instance: Instance, solution: Solution) -> BaseOperator | None:
+        import random
+        valid_routes = [r_id for r_id, r in enumerate(solution.routes) if len(r.client_ids) > 0]
+        if len(valid_routes) < 2:
+            return None
+        r1, r2 = random.sample(valid_routes, 2)
+        if r1 > r2:
+            r1, r2 = r2, r1
+            
+        n1 = len(solution.routes[r1].client_ids)
+        n2 = len(solution.routes[r2].client_ids)
+        
+        i1, j1 = random.randrange(n1), random.randrange(n1)
+        if i1 > j1: i1, j1 = j1, i1
+            
+        i2, j2 = random.randrange(n2), random.randrange(n2)
+        if i2 > j2: i2, j2 = j2, i2
+            
+        return cls(instance, r1, r2, i1, j1, i2, j2)

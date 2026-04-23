@@ -30,5 +30,24 @@ class BaseOperator(ABC):
         ...
 
     @classmethod
+    @abstractmethod
+    def sample_random_neighbor(cls, instance: Instance, solution: Solution) -> BaseOperator | None:
+        """
+        Génère un seul opérateur de voisinage aléatoire valide, ou None si impossible.
+        """
+        ...
+
+    def get_signature(self) -> tuple:
+        """
+        Retourne une signature unique et hashable de cet opérateur, 
+        basée sur son type et ses attributs.
+        Utile pour la liste tabou en O(1).
+        """
+        # On extrait les valeurs de tous les attributs, sauf l'instance (_inst) qui n'est pas hashable
+        # sorted() assure que l'ordre des attributs est toujours le même
+        attributes = tuple(v for k, v in sorted(self.__dict__.items()) if k != '_inst')
+        return (self.__class__.__name__, attributes)
+
+    @classmethod
     def get_operators(cls, *names):
         return BaseOperator.__subclasses__()
