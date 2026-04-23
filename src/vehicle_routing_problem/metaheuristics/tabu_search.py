@@ -10,32 +10,34 @@ from vehicle_routing_problem.operators.base_operator import BaseOperator
 
 
 class TabuSearch(BaseMetaheuristic):
-    """
-    Recherche Tabou : explore TOUS les voisinages disponibles et choisit
-    le meilleur mouvement non tabou.
-    """
 
     def __init__(self, instance: Instance, tabu_size: int, n_neighbors: int = 100, check_time_windows: bool = True):
         super().__init__(instance)
         self._tabu_size = tabu_size
         self._n_neighbors = n_neighbors
         self._check_time_windows = check_time_windows
-        self.tabu_list: deque[BaseOperator] = deque(maxlen=self._tabu_size)
         self.tabu_list: deque[tuple] = deque(maxlen=self._tabu_size)
         self.tabu_set: set[tuple] = set()
 
     def _is_tabu(self, op: BaseOperator) -> bool:
-        """Vérification en O(1) grâce au set et à la signature."""
         return op.get_signature() in self.tabu_set
 
     def _add_tabu(self, op: BaseOperator):
-        """Ajoute un opérateur à la liste et au set tabou."""
         signature = op.get_signature()
         if len(self.tabu_list) == self._tabu_size:
             old_signature = self.tabu_list.popleft()
-            self.tabu_set.remove(old_signature)
+            self.tabu_set.discard(old_signature)
         self.tabu_list.append(signature)
         self.tabu_set.add(signature)
+
+    def _is_feasible(self, solution: Solution, affected: list[int]) -> bool:
+        for i in affected:
+            route = solution.routes[i]
+            if not route.is_capacity_feasible:
+                return False
+            if self._check_time_windows and not route.is_time_feasible():
+                return False
+        return True
 
     def solve(self, current_solution: Solution) -> Iterator[Solution]:
         self.tabu_list.clear()
@@ -47,20 +49,17 @@ class TabuSearch(BaseMetaheuristic):
 
             sampled_neighbors = []
             available_ops = list(all_operators)
-
             attempts = 0
-            max_attempts = self._n_neighbors * 10  # Sécurité pour éviter boucle infinie
+            max_attempts = self._n_neighbors * 10
 
             while len(sampled_neighbors) < self._n_neighbors and available_ops and attempts < max_attempts:
                 attempts += 1
                 op_type = random.choice(available_ops)
-
                 neighbor = op_type.sample_random_neighbor(self._inst, current)
 
                 if neighbor is not None:
                     sampled_neighbors.append(neighbor)
                 else:
-                    # Si l'opérateur retourne None (impossible, ex: 1 seule route dispo pour un InterExchange), on l'abandonne
                     available_ops.remove(op_type)
 
             if not sampled_neighbors:
@@ -71,22 +70,26 @@ class TabuSearch(BaseMetaheuristic):
             if not non_tabu:
                 break
 
-            best_op = non_tabu[0]
-            best_delta = best_op.get_delta_cost(current)
+            best_op = None
+            best_delta = float('inf')
 
-            for op in non_tabu[1:]:
+            for op in non_tabu:
                 delta = op.get_delta_cost(current)
-                # Comme delta = (Nouvelle - Ancienne), un delta négatif est une baisse de distance.
-                # On cherche donc à MINIMISER le delta.
-                if delta < best_delta:
-                    best_op = op
-                    best_delta = delta
+                if delta >= best_delta:
+                    continue
+                # On ne calcule apply() que si le delta est prometteur
+                candidate = op.apply(current)
+                if not self._is_feasible(candidate, op.affected_routes()):
+                    continue
+                best_op = op
+                best_delta = delta
 
-            best_solution = best_op.apply(current)
+            if best_op is None:
+                break
 
-            # Si le delta >= 0, la distance augmente ou stagne (mauvais mouvement), on l'ajoute en Tabou.
+            current = best_op.apply(current)
+
             if best_delta >= 0:
                 self._add_tabu(best_op)
 
-            current = best_solution
             yield current
