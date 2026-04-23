@@ -32,3 +32,38 @@ class Route:
     def __repr__(self):
         seq = " → ".join(map(str, self.client_ids))
         return f"Route(0 → {seq} → 0  |  d={self.distance:.1f}  |  load={self.total_demand})"
+
+    def is_time_feasible(self) -> bool:
+        time = 0
+        inst = self._inst
+        dm = inst.dist_matrix
+
+        prev = 0
+
+        for cid in self.client_ids:
+            client = inst.clients[cid]
+
+            time += dm[prev][cid]
+            time = max(time, client.ready_time)
+
+            if time > client.due_time:
+                return False
+
+            time += client.service_time
+            prev = cid
+
+        # retour dépôt
+        depot = inst.depot
+        time += dm[prev][0]
+
+        if time > depot.due_time:
+            return False
+
+        return True
+
+
+    @property
+    def is_feasible(self) -> bool:
+        return self.is_capacity_feasible and self.is_time_feasible()
+    
+    

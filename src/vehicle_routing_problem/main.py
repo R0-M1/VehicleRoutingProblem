@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from vehicle_routing_problem.core.route import Route
 from vehicle_routing_problem.generator import RandomGenerator
 from vehicle_routing_problem.tests.test_metaheuristic import TestMetaheuristic
 from vehicle_routing_problem.tests.test_operator import TestOperator
@@ -8,8 +9,6 @@ from vehicle_routing_problem.visualization.visualizer import Visualizer
 from vehicle_routing_problem.generator import RandomGenerator, GreedyGenerator
 from vehicle_routing_problem.visualization.visualizer import Visualizer
 from vehicle_routing_problem.metaheuristics.simulated_annealing import SimulatedAnnealing
-from vehicle_routing_problem.export.datastorage import DataStorage
-from vehicle_routing_problem.export.exporterCSV import CSVExporter
 
 if __name__ == "__main__":
     print("--- Lancement du Projet VRPTW ---")
@@ -22,38 +21,30 @@ if __name__ == "__main__":
     generator = GreedyGenerator(instance)
     solution = generator.generate()
 
-    #init pour exporter
-    export_required = False
-    storage = DataStorage()
-
     print("\n--- Solution Initiale ---")
     print(f"Distance totale : {solution.total_distance:.2f} km")
     print(f"Nombre de véhicules : {solution.nb_vehicles}")
-
     
-    TestMetaheuristic.test_tabu_search(instance, solution)
+    # Visualisons tout de suite cette solution de départ pour voir à quoi elle ressemble
+    Visualizer.visualize_solution(solution, instance, title="Solution Initiale Greedy VRPTW")
+    
+    # TestMetaheuristic.test_simulated_annealing(instance, solution)
+    # Visualizer.keep_open()
 
+    print("\n--- Visualisation d'une route ---")
 
-    # print("\n--- Visualisation d'une route ---")
+    route_index = 0  # choisir la route à afficher (0 = Route 1)
 
-    # route_index = 0  # choisir la route à afficher
+    solution1 = generator.generate()
+    solution2 = generator.generate()
 
-    # solution1 = generator.generate()
-    # solution2 = generator.generate()
-
-    # if export_required:
-    #     csv_visitor = CSVExporter(filename="mon_export_vrp")
-    #     storage.accept(csv_visitor)
-    # else:
-    #     print("Export CSV désactivé par l'utilisateur.")
-
-#     Visualizer.single_route(
-#         solution,
-#         instance,
-#         route_idx=route_index,
-#         title=f"Route {route_index + 1}",
-#         show=True
-#     )
+    Visualizer.single_route(
+        solution,
+        instance,
+        route_idx=route_index,
+        title=f"Route {route_index + 1}",
+        show=True
+    )
 
 #     Visualizer.compare_solutions(
 #         solutions=[solution1, solution2, solution],
@@ -74,7 +65,7 @@ if __name__ == "__main__":
 #     show=True
 # )
 
-# tester = TestOperator(instance, solution)
+tester = TestOperator(instance, solution)
 
 # Test individual
 # new_sol = tester.test_intra_exchange(0, 1, 3)
@@ -83,8 +74,25 @@ if __name__ == "__main__":
 # new_sol = tester.test_intra_2opt(0, 1, 5)
 # new_sol = tester.test_inter_relocate(0, 1, 1, 2)  # route1, client, route2, pos
 # new_sol = tester.test_inter_exchange(0, 1, 1, 0)  # route1, client1, route2, client2
-# new_sol = tester.test_inter_cross_exchange(0, 1, 2, 1, 3, 4)  # routes et segments
+new_sol = tester.test_inter_cross_exchange(0, 1, 2, 1, 3, 4)  # routes et segments
 
 # Tests « best » (trouvent la meilleure amélioration)
 # best_sol = tester.test_best_intra_exchange(update_current_solution=True)
 # best_sol = tester.test_best_inter_exchange(update_current_solution=True)
+
+# Test simple d'une route : dépôt → c2 → c1 → dépôt
+route_test0 = Route([2, 1], instance)
+
+# Test inverse de la route : dépôt → c1 → c2 → dépôt
+route_test1 = Route([1, 2], instance)
+
+print("Route test :", route_test0)
+print("Route test :", route_test1)
+
+print("Faisabilité capacité :", route_test0.is_capacity_feasible)
+print("Faisabilité temps :", route_test0.is_time_feasible())
+print("Faisabilité globale :", route_test0.is_feasible)
+
+print("Faisabilité capacité :", route_test1.is_capacity_feasible)
+print("Faisabilité temps :", route_test1.is_time_feasible())
+print("Faisabilité globale :", route_test1.is_feasible)
