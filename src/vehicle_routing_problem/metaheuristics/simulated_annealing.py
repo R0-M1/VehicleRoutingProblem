@@ -26,7 +26,9 @@ class SimulatedAnnealing(BaseMetaheuristic):
         self.observers.append(observer)
 
     def _is_feasible(self, solution: Solution, affected: list[int]) -> bool:
-        for i in affected: #TODO: utiliser la liste affected mais j'ai un bug : IndexError: list index out of range
+        # Maintenant que Solution ne supprime plus les routes vides, 
+        # les index sont stables. On peut utiliser l'optimisation maximale !
+        for i in affected:
             route = solution.routes[i]
             if not route.is_capacity_feasible:
                 return False

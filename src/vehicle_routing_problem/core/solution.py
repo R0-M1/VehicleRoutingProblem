@@ -3,7 +3,10 @@ from .route import Route
 
 class Solution:
     def __init__(self, routes: list[Route]):
-        self.routes = [r for r in routes if len(r) > 0]  # ignore routes vides
+        # OPTIMISATION : On NE SUPPRIME PLUS les routes vides.
+        # Cela garantit que la taille de `self.routes` reste constante et que 
+        # les index ne se décalent jamais.
+        self.routes = routes
 
     @property
     def total_distance(self) -> float:
@@ -11,7 +14,8 @@ class Solution:
 
     @property
     def nb_vehicles(self) -> int:
-        return len(self.routes)
+        # On calcule le vrai nombre de véhicules actifs
+        return sum(1 for r in self.routes if len(r) > 0)
 
     def all_clients_visited(self, instance) -> bool:
         visited = [cid for r in self.routes for cid in r.client_ids]
