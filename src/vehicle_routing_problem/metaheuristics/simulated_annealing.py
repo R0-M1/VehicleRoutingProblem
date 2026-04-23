@@ -26,7 +26,7 @@ class SimulatedAnnealing(BaseMetaheuristic):
         self.observers.append(observer)
 
     def _is_feasible(self, solution: Solution, affected: list[int]) -> bool:
-        for i in affected:
+        for i in affected: #TODO: utiliser la liste affected mais j'ai un bug : IndexError: list index out of range
             route = solution.routes[i]
             if not route.is_capacity_feasible:
                 return False
@@ -42,25 +42,12 @@ class SimulatedAnnealing(BaseMetaheuristic):
         all_operators = BaseOperator.get_operators(self._inst)
 
         while temperature > 1e-6:
-            
-
-            # # Génère TOUS les voisins possibles
-            # all_neighbors: list[BaseOperator] = []
-            # for op_type in all_operators:
-            #     all_neighbors.extend(op_type.generate_neighbors(self._inst, current))
 
              # 1. On tire au sort un seul TYPE d'opération (ex: juste InterExchange)
             random_op_type = random.choice(all_operators)
 
-
             # 2. On ne génère les voisins QUE pour celui-ci
-            specific_neighbors = random_op_type.generate_neighbors(self._inst, current)
-
-            if not specific_neighbors:
-                continue
-
-            # Choix aléatoire d'un voisin (simple !)
-            candidate_op = random.choice(specific_neighbors)
+            candidate_op = random_op_type.sample_random_neighbor(self._inst, current)
             candidate = candidate_op.apply(current)  # apply() fait déjà le copy()
 
             if not self._is_feasible(candidate, candidate_op.affected_routes()):

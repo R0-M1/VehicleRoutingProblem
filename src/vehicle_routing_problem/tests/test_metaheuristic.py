@@ -58,12 +58,12 @@ class TestMetaheuristic:
     @timer
     @staticmethod
     def test_simulated_annealing(instance, initial_solution):
-        sa = SimulatedAnnealing(instance, initial_temperature=50, cooling_rate=0.999)
+        sa = SimulatedAnnealing(instance, initial_temperature=50, cooling_rate=0.9999, check_time_windows=True)
         print("Recuit Simulé:")
         for i, sol in enumerate(sa.solve(initial_solution)):
             # On lit simplement la propriété que l'on vient de créer dans sa !
             temp = sa.current_temperature
-            print(f"Iteration {i}: {sol.total_distance:.2f} | Temp: {temp:.2f}")
+            print(f"Iteration {i}: {sol.total_distance:.2f} | Temp: {temp:.6f}")
             DataStorage.update({
                 "iteration": i,
                 "distance": round(sol.total_distance, 2),
