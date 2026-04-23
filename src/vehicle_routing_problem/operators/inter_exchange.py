@@ -18,6 +18,9 @@ class InterExchange(BaseOperator):
         self.client1 = client1
         self.client2 = client2
 
+    def affected_routes(self) -> list[int]:
+        return [self.route1_id, self.route2_id]
+
     @override
     def apply(self, solution: Solution) -> Solution:
         new_solution = solution.copy()

@@ -37,30 +37,35 @@ class Route:
         time = 0
         inst = self._inst
         dm = inst.dist_matrix
-
         prev = 0
 
         for cid in self.client_ids:
             client = inst.clients[cid]
 
-            time += dm[prev][cid]
+            travel = dm[prev][cid]
+            time += travel
+
+            wait = max(0, client.ready_time - time)
             time = max(time, client.ready_time)
 
+            # print(f"  Client {cid} | travel={travel:.1f} | arrival={time - wait:.1f} | wait={wait:.1f} | time={time:.1f} | window=[{client.ready_time}, {client.due_time}]")
+
             if time > client.due_time:
+                # print(f"  ❌ Violation sur client {cid} : {time:.1f} > {client.due_time}")
                 return False
 
             time += client.service_time
             prev = cid
 
-        # retour dépôt
         depot = inst.depot
         time += dm[prev][0]
+        # print(f"  Retour dépôt | time={time:.1f} | due={depot.due_time}")
 
         if time > depot.due_time:
+            # print(f"  ❌ Violation retour dépôt : {time:.1f} > {depot.due_time}")
             return False
 
         return True
-
 
     @property
     def is_feasible(self) -> bool:

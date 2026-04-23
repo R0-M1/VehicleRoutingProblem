@@ -8,14 +8,14 @@ from vehicle_routing_problem.operators.base_operator import BaseOperator
 class InterCrossExchange(BaseOperator):
 
     def __init__(
-        self,
-        instance: Instance,
-        route1_id: int,
-        route2_id: int,
-        start1: int,
-        end1: int,
-        start2: int,
-        end2: int,
+            self,
+            instance: Instance,
+            route1_id: int,
+            route2_id: int,
+            start1: int,
+            end1: int,
+            start2: int,
+            end2: int,
     ):
         super().__init__(instance)
         self.route1_id = route1_id
@@ -25,14 +25,17 @@ class InterCrossExchange(BaseOperator):
         self.start2 = start2
         self.end2 = end2
 
+    def affected_routes(self) -> list[int]:
+        return [self.route1_id, self.route2_id]
+
     @override
     def apply(self, solution: Solution) -> Solution:
 
         new_solution = solution.copy()
 
         if (
-            self.route1_id >= len(new_solution.routes)
-            or self.route2_id >= len(new_solution.routes)
+                self.route1_id >= len(new_solution.routes)
+                or self.route2_id >= len(new_solution.routes)
         ):
             return new_solution
 
@@ -43,20 +46,20 @@ class InterCrossExchange(BaseOperator):
         ids2 = route2.client_ids
 
         if (
-            self.end1 >= len(ids1)
-            or self.end2 >= len(ids2)
-            or self.start1 > self.end1
-            or self.start2 > self.end2
+                self.end1 >= len(ids1)
+                or self.end2 >= len(ids2)
+                or self.start1 > self.end1
+                or self.start2 > self.end2
         ):
             return new_solution
 
         # segments à échanger
-        seg1 = ids1[self.start1 : self.end1 + 1]
-        seg2 = ids2[self.start2 : self.end2 + 1]
+        seg1 = ids1[self.start1: self.end1 + 1]
+        seg2 = ids2[self.start2: self.end2 + 1]
 
         # nouvelles routes
-        new_ids1 = ids1[: self.start1] + seg2 + ids1[self.end1 + 1 :]
-        new_ids2 = ids2[: self.start2] + seg1 + ids2[self.end2 + 1 :]
+        new_ids1 = ids1[: self.start1] + seg2 + ids1[self.end1 + 1:]
+        new_ids2 = ids2[: self.start2] + seg1 + ids2[self.end2 + 1:]
 
         new_route1 = Route(new_ids1, self._inst)
         new_route2 = Route(new_ids2, self._inst)
@@ -76,8 +79,8 @@ class InterCrossExchange(BaseOperator):
         O(1) calcul : on casse 4 arêtes (2 sur chaque route) et on reconnecte (4 arêtes créées).
         """
         if (
-            self.route1_id >= len(solution.routes)
-            or self.route2_id >= len(solution.routes)
+                self.route1_id >= len(solution.routes)
+                or self.route2_id >= len(solution.routes)
         ):
             return 0.0
 
@@ -88,10 +91,10 @@ class InterCrossExchange(BaseOperator):
         ids2 = route2.client_ids
 
         if (
-            self.end1 >= len(ids1)
-            or self.end2 >= len(ids2)
-            or self.start1 > self.end1
-            or self.start2 > self.end2
+                self.end1 >= len(ids1)
+                or self.end2 >= len(ids2)
+                or self.start1 > self.end1
+                or self.start2 > self.end2
         ):
             return 0.0
 
@@ -124,14 +127,14 @@ class InterCrossExchange(BaseOperator):
 
         # 4 arrêtes brisées
         removed = (
-            dm[p1][s1] + dm[e1][n1] + 
-            dm[p2][s2] + dm[e2][n2]
+                dm[p1][s1] + dm[e1][n1] +
+                dm[p2][s2] + dm[e2][n2]
         )
 
         # 4 arrêtes recréées (en croisant les routes)
         added = (
-            dm[p1][s2] + dm[e2][n1] +
-            dm[p2][s1] + dm[e1][n2]
+                dm[p1][s2] + dm[e2][n1] +
+                dm[p2][s1] + dm[e1][n2]
         )
 
         return float(added - removed)
@@ -139,7 +142,7 @@ class InterCrossExchange(BaseOperator):
     @classmethod
     @override
     def generate_neighbors(
-        cls, instance: Instance, solution: Solution
+            cls, instance: Instance, solution: Solution
     ) -> list[BaseOperator]:
 
         neighbors = []
@@ -156,7 +159,6 @@ class InterCrossExchange(BaseOperator):
                     for j in range(i, n1):
                         for k in range(n2):
                             for l in range(k, n2):
-
                                 neighbors.append(
                                     cls(instance, r1, r2, i, j, k, l)
                                 )

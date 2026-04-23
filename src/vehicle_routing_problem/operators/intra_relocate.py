@@ -15,7 +15,10 @@ class IntraRelocate(BaseOperator):
         super().__init__(instance)
         self.route_id = route_id
         self.client1 = client1
-        self.client2 = client2 
+        self.client2 = client2
+
+    def affected_routes(self) -> list[int]:
+        return [self.route_id]
 
     @override
     def apply(self, solution: Solution) -> Solution:

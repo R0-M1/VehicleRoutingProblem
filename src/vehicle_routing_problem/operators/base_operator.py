@@ -29,6 +29,11 @@ class BaseOperator(ABC):
         """
         ...
 
+    @abstractmethod
+    def affected_routes(self) -> list[int]:
+        """Retourne les indices des routes modifiées par cet opérateur."""
+        ...
+
     @classmethod
     @abstractmethod
     def sample_random_neighbor(cls, instance: Instance, solution: Solution) -> BaseOperator | None:

@@ -15,10 +15,12 @@ class TabuSearch(BaseMetaheuristic):
     le meilleur mouvement non tabou.
     """
 
-    def __init__(self, instance: Instance, tabu_size: int, n_neighbors: int = 100):
+    def __init__(self, instance: Instance, tabu_size: int, n_neighbors: int = 100, check_time_windows: bool = True):
         super().__init__(instance)
         self._tabu_size = tabu_size
         self._n_neighbors = n_neighbors
+        self._check_time_windows = check_time_windows
+        self.tabu_list: deque[BaseOperator] = deque(maxlen=self._tabu_size)
         self.tabu_list: deque[tuple] = deque(maxlen=self._tabu_size)
         self.tabu_set: set[tuple] = set()
 
@@ -42,19 +44,19 @@ class TabuSearch(BaseMetaheuristic):
 
         while True:
             all_operators = BaseOperator.get_operators(self._inst)
-            
+
             sampled_neighbors = []
             available_ops = list(all_operators)
 
             attempts = 0
             max_attempts = self._n_neighbors * 10  # Sécurité pour éviter boucle infinie
-            
+
             while len(sampled_neighbors) < self._n_neighbors and available_ops and attempts < max_attempts:
                 attempts += 1
                 op_type = random.choice(available_ops)
-                
+
                 neighbor = op_type.sample_random_neighbor(self._inst, current)
-                
+
                 if neighbor is not None:
                     sampled_neighbors.append(neighbor)
                 else:
@@ -87,4 +89,4 @@ class TabuSearch(BaseMetaheuristic):
                 self._add_tabu(best_op)
 
             current = best_solution
-            yield current   
+            yield current

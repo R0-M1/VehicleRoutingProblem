@@ -11,6 +11,9 @@ class IntraReverse(BaseOperator):
         super().__init__(instance)
         self.route_id = route_id
 
+    def affected_routes(self) -> list[int]:
+        return [self.route_id]
+
     @override
     def apply(self, solution: Solution) -> Solution:
         new_solution = solution.copy()

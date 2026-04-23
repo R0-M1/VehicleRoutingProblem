@@ -15,14 +15,24 @@ class SimulatedAnnealing(BaseMetaheuristic):
     parmi les voisins avec probabilité Metropolis.
     """
 
-    def __init__(self, instance: Instance, initial_temperature: float, cooling_rate: float):
+    def __init__(self, instance: Instance, initial_temperature: float, cooling_rate: float, check_time_windows: bool = True):
         super().__init__(instance)
         self._initial_temperature = initial_temperature
         self._cooling_rate = cooling_rate
+        self._check_time_windows = check_time_windows
         self.observers = [] # Liste de VRPObserver
         
     def add_observer(self, observer):
         self.observers.append(observer)
+
+    def _is_feasible(self, solution: Solution, affected: list[int]) -> bool:
+        for i in affected:
+            route = solution.routes[i]
+            if not route.is_capacity_feasible:
+                return False
+            if self._check_time_windows and not route.is_time_feasible():
+                return False
+        return True
 
     def solve(self, current_solution: Solution) -> Iterator[Solution]:
         current = current_solution.copy()
@@ -52,6 +62,9 @@ class SimulatedAnnealing(BaseMetaheuristic):
             # Choix aléatoire d'un voisin (simple !)
             candidate_op = random.choice(specific_neighbors)
             candidate = candidate_op.apply(current)  # apply() fait déjà le copy()
+
+            if not self._is_feasible(candidate, candidate_op.affected_routes()):
+                continue
 
             delta = candidate_op.get_delta_cost(current)
 
