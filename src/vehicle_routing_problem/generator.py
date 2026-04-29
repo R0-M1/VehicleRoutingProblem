@@ -64,14 +64,17 @@ class GreedyGenerator:
         self,
         instance: Instance,
         max_vehicles: int = 0,
-        seed: int = 42,
+        seed: int | None = None,
         fill_ratio: float = 1.0,
         check_time_windows: bool = False,
+        rcl_size: int = 3,
     ):
         self.inst = instance
         self.max_vehicles = max_vehicles or instance.nb_clients // 3 + 1
         self.fill_ratio = max(0.0, min(1.0, fill_ratio))
         self._check_time_windows = check_time_windows
+        self.rcl_size = max(1, rcl_size)  # 1 = greedy pur, >1 = randomisé
+        self._rng = random.Random(seed)  # None → random à chaque appel
 
     def generate(self) -> Solution:
         customers = set(range(1, self.inst.nb_clients + 1))
@@ -86,8 +89,8 @@ class GreedyGenerator:
             while customers:
                 if current_load >= capacity_threshold:
                     break
-                best_cid = None
-                best_dist = float('inf')
+                # Construire la liste des candidats faisables avec leur distance
+                candidates = []
                 for cid in customers:
                     client = inst.clients[cid]
                     if current_load + client.demand > inst.capacity:
@@ -102,19 +105,22 @@ class GreedyGenerator:
                                        + inst.dist_matrix[cid][0])
                         if return_time > inst.depot.due_time:
                             continue
-                    if travel < best_dist:
-                        best_cid = cid
-                        best_dist = travel
-                if best_cid is None:
+                    candidates.append((cid, travel))
+                if not candidates:
                     break
-                client = inst.clients[best_cid]
-                travel = inst.dist_matrix[last_cid][best_cid]
+                # Restricted Candidate List : trier par distance et choisir
+                # aléatoirement parmi les rcl_size meilleurs
+                candidates.sort(key=lambda x: x[1])
+                rcl = candidates[:self.rcl_size]
+                chosen_cid, _ = self._rng.choice(rcl)
+                client = inst.clients[chosen_cid]
+                travel = inst.dist_matrix[last_cid][chosen_cid]
                 arrival = current_time + travel
                 current_time = max(arrival, client.ready_time) + client.service_time
                 current_load += client.demand
-                route_ids.append(best_cid)
-                customers.remove(best_cid)
-                last_cid = best_cid
+                route_ids.append(chosen_cid)
+                customers.remove(chosen_cid)
+                last_cid = chosen_cid
             if route_ids:
                 routes.append(Route(route_ids, inst))
             elif customers:
