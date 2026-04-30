@@ -9,6 +9,10 @@ from vehicle_routing_problem.visualization.visualizer import Visualizer
 from vehicle_routing_problem.generator import RandomGenerator, GreedyGenerator
 from vehicle_routing_problem.visualization.visualizer import Visualizer
 from vehicle_routing_problem.metaheuristics.simulated_annealing import SimulatedAnnealing
+# Exemple d'appel
+from vehicle_routing_problem.tests.test_pl import TestPL
+
+
 
 if __name__ == "__main__":
     print("--- Lancement du Projet VRPTW ---")
@@ -29,7 +33,14 @@ if __name__ == "__main__":
     Visualizer.visualize_solution(solution, instance, title="Solution Initiale Greedy VRPTW")
     
     TestMetaheuristic.test_simulated_annealing(instance, solution)
+
+
+    print("\n--- Lancement du Solveur Exact (Adapter PL) ---")
+    TestPL.test_solver_exact(instance, time_limit=45)
+    
     Visualizer.keep_open()
+
+
 
     # print("\n--- Visualisation d'une route ---")
     #
