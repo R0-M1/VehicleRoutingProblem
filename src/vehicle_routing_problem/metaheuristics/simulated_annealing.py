@@ -56,7 +56,7 @@ class SimulatedAnnealing(BaseMetaheuristic):
         all_operators = BaseOperator.get_operators(self._inst)
 
         while temperature > 1e-6:
-            # --- Échantillonnage de n_neighbors voisins valides ---
+            # Échantillonnage de n_neighbors voisins valides
             best_op = None
             best_delta = float("inf")
             attempts = 0
@@ -72,10 +72,8 @@ class SimulatedAnnealing(BaseMetaheuristic):
 
                 delta = candidate_op.get_delta_cost(current)
 
-                # On ne calcule apply()+feasibility que si delta prometteur
-                # (même stratégie que ton Tabou)
                 if delta >= best_delta:
-                    found += 1  # compté quand même pour ne pas biaiser
+                    found += 1
                     continue
 
                 candidate = candidate_op.apply(current)
@@ -105,5 +103,4 @@ class SimulatedAnnealing(BaseMetaheuristic):
             temperature *= self._cooling_rate
             self.current_temperature = temperature
 
-            # On yield la meilleure connue (pas juste la courante)
             yield best
