@@ -34,9 +34,13 @@ if __name__ == "__main__":
     
     TestMetaheuristic.test_simulated_annealing(instance, solution)
 
+    from vehicle_routing_problem.utils.parser import VRPParser
+    instance_complete = VRPParser.parse("data/raw/data101.vrp")
 
-    print("\n--- Lancement du Solveur Exact (Adapter PL) ---")
-    TestPL.test_solver_exact(instance, time_limit=45)
+    # 2. Lancer le test de limite (Question 6)
+    # Cela va tester 5, 10, 12... clients, enregistrer dans DataStorage
+    # et créer un fichier dans le dossier /exported/
+    TestPL.run_bonus_question6(instance_complete)
     
     Visualizer.keep_open()
 

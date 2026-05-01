@@ -121,6 +121,6 @@ class LinearProgrammingSolver(BaseMetaheuristic):
                     curr = next_node
                 
                 # Création de ton objet Route (assumé : prend instance et liste d'IDs)
-                routes_list.append(Route(self._inst, route_nodes))
+                routes_list.append(Route(route_nodes, self._inst))
             
             yield Solution(routes_list)
